@@ -149,10 +149,98 @@ Unless you are Barry Warsaw.
       
 7.  Don't do if x not in dict: dict[x] = []
     Use a defaultdict (2.5), or setdefault (2.0).
-   
+    
+    ./Django-1.5.1/django/db/models/sql/query.py
+     
+        def deferred_to_data(self, target, callback):
+            seen = {}
+    
+            if not is_reverse_o2o(field):
+               add_to_dict(seen, model, field)
+    
+            if model in seen:
+                seen[model].update(values)
+            else:
+                # As we've passed through this model, but not explicitly
+                # included any fields, we have to make sure it's mentioned
+                # so that only the "must include" fields are pulled in.
+                seen[model] = values
+    
+             if model not in seen:
+                seen[model] = set()
+                
+        def add_to_dict(data, key, value):
+            """
+            A helper function to add "value" to the set of values for "key", whether or
+            not "key" already exists.
+            """
+            if key in data:
+                data[key].add(value)
+            else:
+                data[key] = set([value])
+    
+
+    better:
+
+        from collections import defaultdict
+    
+        def deferred_to_data(self, target, callback):
+            seen = defaultdict(set)
+
+            seen['model'].add('field1')
+
+            seen['model'].update(values)
+    
+            seen['model2'] # This is of course pretty pointless.
+
+    Default dict came in Python 2.5. In 2.4 you can do this:
+
+        def deferred_to_data_setdefault(values):
+            seen = {}
+        
+            value = seen.setdefault('model', set())
+            value.add('field1')
+        
+            value = seen.setdefault('model', set())
+            value.update(values)
+            
+            value = seen.setdefault('model2', set())
+
+    But that will create and destroy a bunch of set() objects, so that's not nearly as good as defaultdict.
+    
+        
 8.  Don't use has_key().
 
+    Plenty of use in Django 1.3. And even in 1.5, but then only with objects that are defined in Django.
+    Standard dictionaries don't have it in Python 3.
+
 9.  Don't use `x == b and t or f`
+
+    Because... what if t is false!
+    
+        first_choice = include_blank and blank_choice or []
+        
+    Blank_choice is a parameter. If you pass in blank_choice = ''
+    
+        >>> include_blank = True
+        >>> blank_choice = ''
+        >>> include_blank and blank_choice or []
+        []
+        
+    Oups!
+
+    Better:
+    
+        >>> blank_choice if include_blank else []
+        ''
+        
+        
+    Some are OK:
+    
+         attrs = attrs and flatatt(attrs) or ''
+         
+    flatattr(attrs) are of course never false.
+    
 
 10. Don't use type([]), type([]) etc.
     isinstance(x, collections.Sequence) is better.
@@ -160,7 +248,7 @@ Unless you are Barry Warsaw.
 11. Don't start octals with 0.
     They start with 0o now.
    
-12. Don't use Set()
+#12. Don't use set()
 
 13. Don't calculate constants outside the loop.
     No need since CPython 2.5
