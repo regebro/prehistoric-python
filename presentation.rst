@@ -1,268 +1,269 @@
-Prehistoric Patterns in Python
-==============================
+:css: css/stylesheet.css
+:skip-help: true
+:title: Prehistoric Patterns in Python
 
-0.  Don't <>
+----
 
-    From the Python 1.4 documentation:
-    "<> and != are alternate spellings for the same operator. (I couldn't choose between ABC and C! :-)"
-    Well, by 1.6 <> is marked as obsolescent.
-    
-Unless you are Barry Warsaw.
+.. class:: poster playfair bold pablo
 
-.. code::
+PABLO FANQUE CIRCUS ROYAL,
 
-    >>> from __future__ import barry_as_FLUFL
-    >>> 1 != 2
-      File "<stdin>", line 1
-        1 != 2
-           ^
-    SyntaxError: invalid syntax
-    >>> 1 <> 2
-    True
-    
-    distribute-0.6.34-py2.7.egg/setuptools/command/easy_install.py:
-    
-        if k<>'target_version':
-        
-    Django-1.3.7/django/core/servers/basehttp.py:
-    
-        self._headers[:] = [kv for kv in self._headers if kv[0].lower()<>name]
+.. class:: poster playfair warsaw
 
+WARSAW, POLAND
 
+.. class:: poster rye djangocon
 
+DJANGOCON EU BONANZA
 
-1.  Don't concatenate strings by joining them
-    CPython string concatenation is fast since (2.4)
-    
-    /Django-1.5.1/django/http/multipartparser.py:
-    
-        self._leftover = b''.join([bytes, self._leftover])
-        
-    Faster shorter simpler:
-    
-        self._leftover = bytes + self._leftover 
-    
-    Products.ATContentTypes-2.1.8-py2.6.egg/Products/ATContentTypes/browser/calendar.py:
-        
-        return ''.join((url, title, fingerprint))
-        
-    Thats' more sensible, but still, can't you just?:
-        
-        return url + title + fingerprint
-    
-    
-    So when should you use join()? Whenever you are concatenating something that is an iterable.
-    
-    Don't concatenate in a loop. Append to a list, and ''.join() after.
-    
-    
-    
-2.  Don't sort things by putting them into a list
-    Use sorted() (2.4)
+.. class:: poster chivo black positively
 
-    From Django-1.5.1/django/core/management/commands/makemessages.py
-    
-        retval = []
-        for tn in template_names:
-            retval.extend(search_python(python_code, tn))
-        retval = list(set(retval))
-        retval.sort()
-        return retval
+AND POSITIVELY THE
 
-    The loop can't be a list comprehension, since each loop *extends*, so that part makes sense
-    But better code would be:
-    
-        retval = []
-        for tn in template_names:
-            retval.extend(search_python(python_code, tn))
-        return sorted(set(retval)))
+.. class:: poster playfair presentation
 
-    Even worse:
-    Products.ATContentTypes-2.1.12-py2.7.egg/Products/ATContentTypes/tool/topic.py
+LAST PRESENTATION
 
-        available = pcatalog.indexes()
-        val = [field for field in available]
-        val.sort()
-        return val
-    
-    What does this do, and why? Well, I think the list comprehension is to make sure it's a list.
-    I've looked through the code and even in 1999 pcatalog.indexes() returns just the keys() of a list,
-    so it *is* a list, because this code does not run on Python 3. So I dont' know what that is about.
+.. class:: poster playfair counting
 
-    Modern version:
-    
-        return sorted(pcatalog.indexes())
-        
-    Better eh?        
+not counting the lightning talks
+
+.. class:: poster chivo being bold
+
+BEING FOR THE 
+
+.. class:: poster chivo benefit bold
+
+BENEFIT OF MR PONY
+
+.. class:: poster diplomata prehistoric
+
+PREHISTORIC
+
+.. class:: poster diplomata  patterns
+
+PATTERNS 
+
+.. class:: poster diplomata python
+
+IN PYTHON
+
+.. class:: poster holtwood lennart
+
+LENNART REGEBRO, ESQ.
+
+.. class:: poster playfair celebrated
+
+THE CELEBRATED PYTHON HUGGER!
+
+.. class:: poster playfair plone black
+
+PLONE DANCER, VAULTER, RIDER ETC.
+
+.. class:: poster rye grandest
+
+Grandest Night of the Season!
+
+.. class:: poster playfair afternoon
+
+On Afternoon 16:35, Friday 17th of May, 2013
 
 
+----
+
+STRING CONCATENATION
+====================
+
+**Prehistoric Claim:**
+
+Don't use ``+``
+---------------
+
+----
+
+THE MISUNDERSTANDING
+====================
+
+This is slow:
+
+.. code:: python
+
+    result = ''
+    for text in make_a_lot_of_text():
+        result = result + text
+    return result
+
+Much faster:
+
+.. code:: python
+
+    texts = make_a_lot_of_text()
+    result = ''.join(texts)
+    return result
     
-3.  Don't use cmp when sorting
-    Use key (2.4)
+----
+
+THE MISUNDERSTANDING
+====================
+
+But this:
+
+.. code:: python
+
+    self._leftover = bytes + self._leftover
     
-    Here's a good one from Plone 4.0 (thankfully gone in Plone 4.1):
-    Plone-4.0.10-py2.6.egg/Products/CMFPlone/skins/plone_scripts/sort_modified_ascending.py
+is not slower than this:
+
+.. code:: python
+
+    self._leftover = b''.join([bytes, self._leftover])
     
-        sorted = catalog_sequence[:]
-        sorted.sort(lambda x, y: cmp(x.modified(), y.modified()))
-        return sorted
-        
-    Which would be much faster with just:
+.. class:: ref
+
+Django 1.5.1: django/http/multipartparser.py, Line 355
+
+----
+
+MANY COPIES
+===========
+
+.. code:: python
+
+    result = ''
+    for text in make_a_lot_of_text():
+        result = result + text
+    return result
+
+----
+
+:data-x: r-25
+:data-y: r80
+:data-scale: 0.5
+:class: highlight concat1
+
+----
+
+:data-x: r1025
+:data-y: r-80
+:data-scale: 1
+
+ONE COPY!
+=========
+
+.. code:: python
+
+    texts = make_a_lot_of_text()
+    result = ''.join(texts)
+    return result
     
-        return sorted(catalog_sequence, lambda x: x.modified())
-        
-    catalog_sequence is a parameter that is passed in, so it doesn't want to
-    modify it inplace, which is why it makes a copy.
-    
-    Django seems to have gotten rid of all cmp= even before 1.3. In Django
-    1.5 you can't use it, because it doesn't work in Python 3.
+----
+
+:data-x: r-35
+:data-y: r63
+:data-scale: 0.5
+:class: highlight concat2
+
+----
+
+:data-x: r1035
+:data-y: r-63
+:data-scale: 1
+
+INSERT BENCHMARKS HERE
+======================
+
+If I get that damn benchmarking module finished.
+
+----
+
+:data-x: r1000
+:data-y: r0
+:data-scale: 1
+
+SORTING
+=======
+
+**Prehistoric code:**
+
+.. code:: python
+
+    retval = []
+    for tn in template_names:
+        retval.extend(search_python(python_code, tn))
+    retval = list(set(retval))
+    retval.sort()
+    return retval
 
 
+.. class:: ref
 
-4.  Don't handle resources with try/finally
-    Use context managers (from __future__ import with_statement in 2.5)
+Django 1.5.1: django/core/management/commands/makemessages.py
 
-    Django 1.5 is pretty good at doing this, and usually only does it when it's needed.
-    For example with temporary files from tempfile. In Python 3, these files can be used as
-    context managers, but not in Python 2.6.
-    
-    Django-1.5.1/django/contrib/sessions/backends/file.py
+----
 
-        output_file_fd, output_file_name = tempfile.mkstemp(dir=dir,
-            prefix=prefix + '_out_')
-        try:
-            os.write(output_file_fd, self.encode(session_data).encode())
-        finally:
-            os.close(output_file_fd)
+:data-x: r-266
+:data-y: r-7
+:data-scale: 0.5
+:class: highlight sort1
 
-    Can now be:
-    
-        with tempfile.TemporaryFile(dir=dir, prefix=prefix + '_out_') as output_file:
-            output_file.write(self.encode(session_data).encode())
+----
 
-6.  Don't use the string module for string methods.
-   
-    from string import lower >> str.lower
+:data-x: r293
+:data-y: r70
+:data-scale: 0.5
+:class: highlight sort2
 
-    Check: PyPY speed?    
-    
-      
-7.  Don't do if x not in dict: dict[x] = []
-    Use a defaultdict (2.5), or setdefault (2.0).
-    
-    ./Django-1.5.1/django/db/models/sql/query.py
-     
-        def deferred_to_data(self, target, callback):
-            seen = {}
-    
-            if not is_reverse_o2o(field):
-               add_to_dict(seen, model, field)
-    
-            if model in seen:
-                seen[model].update(values)
-            else:
-                # As we've passed through this model, but not explicitly
-                # included any fields, we have to make sure it's mentioned
-                # so that only the "must include" fields are pulled in.
-                seen[model] = values
-    
-             if model not in seen:
-                seen[model] = set()
-                
-        def add_to_dict(data, key, value):
-            """
-            A helper function to add "value" to the set of values for "key", whether or
-            not "key" already exists.
-            """
-            if key in data:
-                data[key].add(value)
-            else:
-                data[key] = set([value])
-    
+----
 
-    better:
+:data-x: r-127
+:data-y: r35
+:data-scale: 0.5
+:class: highlight sort3
 
-        from collections import defaultdict
-    
-        def deferred_to_data(self, target, callback):
-            seen = defaultdict(set)
+----
 
-            seen['model'].add('field1')
+:data-x: r1100
+:data-y: r-98
+:data-scale: 1
 
-            seen['model'].update(values)
-    
-            seen['model2'] # This is of course pretty pointless.
+SORTING
+=======
 
-    Default dict came in Python 2.5. In 2.4 you can do this:
+.. code:: python
 
-        def deferred_to_data_setdefault(values):
-            seen = {}
-        
-            value = seen.setdefault('model', set())
-            value.add('field1')
-        
-            value = seen.setdefault('model', set())
-            value.update(values)
-            
-            value = seen.setdefault('model2', set())
+    retval = set()
+    for tn in template_names:
+        retval.update(search_python(python_code, tn))
+    retval = list(retval)
+    retval.sort()
+    return retval
 
-    But that will create and destroy a bunch of set() objects, so that's not nearly as good as defaultdict.
-    
-        
-8.  Don't use has_key().
+----
 
-    Plenty of use in Django 1.3. And even in 1.5, but then only with objects that are defined in Django.
-    Standard dictionaries don't have it in Python 3.
+:data-x: r-197
+:data-y: r99
+:data-scale: 0.5
+:class: highlight sort4
 
-9.  Don't use `x == b and t or f`
+----
 
-    Because... what if t is false!
-    
-        first_choice = include_blank and blank_choice or []
-        
-    Blank_choice is a parameter. If you pass in blank_choice = ''
-    
-        >>> include_blank = True
-        >>> blank_choice = ''
-        >>> include_blank and blank_choice or []
-        []
-        
-    Oups!
+:data-x: r1197
+:data-y: r-99
+:data-scale: 1
 
-    Better:
-    
-        >>> blank_choice if include_blank else []
-        ''
-        
-        
-    Some are OK:
-    
-         attrs = attrs and flatatt(attrs) or ''
-         
-    flatattr(attrs) are of course never false.
-    
+SORTING
+=======
 
-10. Don't use type([]), type([]) etc.
-    isinstance(x, collections.Sequence) is better.
-   
-11. Don't start octals with 0.
-    They start with 0o now.
-   
-#12. Don't use set()
+.. code:: python
 
-13. Don't calculate constants outside the loop.
-    No need since CPython 2.5
-   
-14. Don't use dicts to replace sets.
+    retval = set()
+    for tn in template_names:
+        retval.update(search_python(python_code, tn))
+    return sorted(retval)
 
+----
 
-Thanks to everyone who suggested outdated idioms, even if I didn't include them:
-
-Radomir Dopieralski
-James Tauber
-Sasha Matijasic
-Brad Allen
-Antonio Sagliocco
-Doug Hellman
-Domen Kožar
-Christophe Simonis
+:data-x: r-135
+:data-y: r116
+:data-scale: 0.5
+:class: highlight sort5
