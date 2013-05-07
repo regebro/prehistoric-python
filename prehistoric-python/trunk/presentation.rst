@@ -267,3 +267,35 @@ SORTING
 :data-y: r116
 :data-scale: 0.5
 :class: highlight sort5
+
+----
+
+:data-x: r1135
+:data-y: r-116
+:data-scale: 1
+
+SORTING WITH CMP
+================
+
+.. code:: python
+
+    sorted = catalog_sequence[:]
+    sorted.sort(lambda x, y: cmp(x.modified(), y.modified()))
+    return sorted
+    
+.. class:: ref
+
+    Plone 4.0: Products/CMFPlone/skins/plone_scripts/sort_modified_ascending.py
+    
+----
+
+:data-x: r1000
+:data-y: r0
+:data-scale: 1
+
+SORTING WITH CMP
+================
+
+.. code:: python
+
+    return sorted(catalog_sequence, lambda x: x.modified())
