@@ -299,3 +299,39 @@ SORTING WITH CMP
 .. code:: python
 
     return sorted(catalog_sequence, lambda x: x.modified())
+
+
+----
+
+DICTS OF SETS
+=============
+
+.. code:: python
+
+    seen = {}
+    
+    if key in seen:
+        seen[key].add(value)
+    else:
+        seen[key] = set([value])
+
+
+.. class:: ref
+
+    ./Django-1.5.1/django/db/models/sql/query.py
+
+----
+
+DICTS OF SETS
+=============
+
+Since Python 2.5 we can now use a `defaultdict`.
+
+.. code:: python
+
+    from collections import defaultdict
+
+    seen = defaultdict(set)
+    
+    seen[key].add(value)
+
