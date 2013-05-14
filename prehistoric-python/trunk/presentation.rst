@@ -303,8 +303,8 @@ SORTING WITH CMP
 
 ----
 
-DICTS OF SETS
-=============
+DICTS OF MUTABLES
+=================
 
 .. code:: python
 
@@ -318,12 +318,12 @@ DICTS OF SETS
 
 .. class:: ref
 
-    ./Django-1.5.1/django/db/models/sql/query.py
+    Django-1.5.1: django/db/models/sql/query.py
 
 ----
 
-DICTS OF SETS
-=============
+DICTS OF MUTABLES
+=================
 
 Since Python 2.5 we can now use a `defaultdict`.
 
@@ -335,3 +335,41 @@ Since Python 2.5 we can now use a `defaultdict`.
     
     seen[key].add(value)
 
+----
+
+CONDITIONAL EXPRESSIONS
+=======================
+
+.. code:: python
+
+    first_choice = include_blank and blank_choice or []
+    
+
+.. class:: ref
+
+    Django-1.5.1: django/db/models/related.py
+
+.. note::
+
+    blank_choice is a parameter. What if it is something that evaluates to
+    false, like a None or an empty set?
+    
+    Yes: first_choice will be an empty list, not what you pass in as blank_choice.
+    
+    In this example from Django, this is not an important issue, because a blank
+    blank_choice makes no sense. But a blank blank_choice should really result in
+    an error because explicit is better than implicit.
+
+----
+
+CONDITIONAL EXPRESSIONS
+=======================
+
+.. code:: python
+
+    first_choice = blank_choice if include_blank else []
+    
+.. note::
+
+    This is the new syntax for one line conditionals. When I say "New" I mean
+    since Python 2.5.
