@@ -1,6 +1,7 @@
 :css: css/stylesheet.css
 :skip-help: true
 :title: Prehistoric Patterns in Python
+:auto-console: false
 
 ----
 
@@ -68,117 +69,204 @@ Grandest Night of the Season!
 
 On Afternoon 16:35, Friday 17th of May, 2013
 
-
 ----
 
-STRING CONCATENATION
-====================
-
-**Prehistoric Claim:**
-
-Don't use ``+``
----------------
-
-----
-
-THE MISUNDERSTANDING
-====================
-
-This is slow:
-
-.. code:: python
-
-    result = ''
-    for text in make_a_lot_of_text():
-        result = result + text
-    return result
-
-Much faster:
-
-.. code:: python
-
-    texts = make_a_lot_of_text()
-    result = ''.join(texts)
-    return result
-    
-----
-
-THE MISUNDERSTANDING
-====================
-
-But this:
-
-.. code:: python
-
-    self._leftover = bytes + self._leftover
-    
-is not slower than this:
-
-.. code:: python
-
-    self._leftover = b''.join([bytes, self._leftover])
-    
-.. class:: ref
-
-Django 1.5.1: django/http/multipartparser.py, Line 355
-
-----
-
-MANY COPIES
+DEFAULTDICT
 ===========
 
 .. code:: python
 
-    result = ''
-    for text in make_a_lot_of_text():
-        result = result + text
-    return result
+    from collections import defaultdict
+
+    data = defaultdict(set)
+    
+    data[key].add(value)
+
+.. note::
+
+   I'll start off with some patterns that center around dictionaries, and
+   this first one is a fairly common pattern.
+   
+   When you have many values per key, so that every value in your dictionary should
+   be a list or a set or a tuple or another dictionary, or in fact anything mutable,
+   and you use, of course a defaultdict.
+   
+   Anyone who doesn't know how defaultdict works?
+   
+   Essentially, if you access a key that doesn't exist, it creates the key!
+   But it only landed in Python in 2.5, so how did you do before this?
 
 ----
 
-:data-x: r-25
-:data-y: r80
-:data-scale: 0.5
-:class: highlight concat1
-
-----
-
-:data-x: r1025
-:data-y: r-80
-:data-scale: 1
-
-ONE COPY!
-=========
+DICTS OF MUTABLES
+=================
 
 .. code:: python
 
-    texts = make_a_lot_of_text()
-    result = ''.join(texts)
-    return result
-    
+    if key in data:
+        data[key].add(value)
+    else:
+        data[key] = set([value])
+
+.. note::
+
+    Well, you did your check manually.
+   
 ----
 
-:data-x: r-35
-:data-y: r63
+:data-x: r-93
+:data-y: r11
 :data-scale: 0.5
-:class: highlight concat2
+:class: highlight mutable1
+
+.. note::
+
+  This looks of the key we are currently looking at exists in the dictionary.
+  
+----
+
+:data-x: r92
+:data-y: r34
+:data-scale: 0.5
+:class: highlight mutable2
+
+.. note::
+
+  And if it does, it adds the value to the existing set.
 
 ----
 
-:data-x: r1035
-:data-y: r-63
+:data-x: r28
+:data-y: r68
+:data-scale: 0.5
+:class: highlight mutable3
+
+.. note::
+
+  But if it doesn't, it adds the key with a set as a value.
+
+  This example code is a function that is called on dictionaries, because
+  it needs to be called from several places. But in one place there
+  is this variant, because here it doesn't add one item, but a list of items,
+  so it needs to use update instead of add.
+
+  
+----
+
+:data-x: r1000
+:data-y: r-113
 :data-scale: 1
 
-INSERT BENCHMARKS HERE
-======================
+DICTS OF MUTABLES
+=================
 
-If I get that damn benchmarking module finished.
+.. code:: python
+
+    if key in data:
+        data[key].add(value)
+    else:
+        data[key] = set([value])
+
+
+.. class:: ref
+
+    Django-1.5.1: django/db/models/sql/query.py
+
+.. note::
+
+    Yeah, Django 1.5.1.
+    
+    Why? Because the code once supported Python 2.4. It doesn't anymore
+    but nobody has changed it. It works... It's definitely not a speed issue.
+    
 
 ----
 
 :data-x: r1000
 :data-y: r0
-:data-scale: 1
+
+SPEED
+=====
+
+``defaultdict vs add_to_dict()``
+--------------------------------
+
+CPython: 1.6x
+
+PyPy: 1.2x
+
+Jython 0.3x
+
+----
+
+SETS
+====
+
+Unique values
+
+Unordered
+
+Fast lookup
+
+.. note::
+
+    Sets are useful, the values in a set must be unique, lookup in sets 
+    are fast, although they aren't ordered.
+    
+    Sets first appeared as a standard library module in Python 2.3, and 
+    as a built in type in Python 2.4.
+    
+    So what did you do before? What else do we have that has Unique values,
+    fast lookup and no ordering?
+
+----
+
+SETS BEFORE SETS
+================
+
+.. code:: python
+
+    d = {}
+    for each in list_of_things:
+        d[each] = None
+        
+    list_of_things = d.keys()
+
+.. note::
+
+    Yes! Dictionary keys!
+    I could not, to my dissapointment find any examples of this in Django. :-)
+
+----
+
+SPEED
+=====
+
+dicts vs lists
+
+Python 2.7: 40x
+
+Python 3.3: 50x
+
+PyPy 1.9: 200x
+
+----
+
+SPEED?
+======
+
+sets vs dicts
+
+Python 2.7: 1.1x
+
+Python 3.3: 1.05x
+
+PyPy 1.9: 1.06x
+
+
+
+----
+
 
 SORTING
 =======
@@ -293,47 +381,12 @@ SORTING WITH CMP
 :data-y: r0
 :data-scale: 1
 
-SORTING WITH CMP
+SORTING WITH KEY
 ================
 
 .. code:: python
 
     return sorted(catalog_sequence, lambda x: x.modified())
-
-
-----
-
-DICTS OF MUTABLES
-=================
-
-.. code:: python
-
-    seen = {}
-    
-    if key in seen:
-        seen[key].add(value)
-    else:
-        seen[key] = set([value])
-
-
-.. class:: ref
-
-    Django-1.5.1: django/db/models/sql/query.py
-
-----
-
-DICTS OF MUTABLES
-=================
-
-Since Python 2.5 we can now use a `defaultdict`.
-
-.. code:: python
-
-    from collections import defaultdict
-
-    seen = defaultdict(set)
-    
-    seen[key].add(value)
 
 ----
 
@@ -373,3 +426,123 @@ CONDITIONAL EXPRESSIONS
 
     This is the new syntax for one line conditionals. When I say "New" I mean
     since Python 2.5.
+
+----
+
+STRING CONCATENATION
+====================
+
+**Prehistoric Claim:**
+
+Don't use ``+``
+---------------
+
+----
+
+THE MISUNDERSTANDING
+====================
+
+This is slow:
+
+.. code:: python
+
+    result = ''
+    for text in make_a_lot_of_text():
+        result = result + text
+    return result
+
+----
+
+THE MISUNDERSTANDING
+====================
+
+Much faster:
+
+.. code:: python
+
+    texts = make_a_lot_of_text()
+    result = ''.join(texts)
+    return result
+    
+----
+
+THE MISUNDERSTANDING
+====================
+
+But this:
+
+.. code:: python
+
+    self._leftover = bytes + self._leftover
+    
+is not slower than this:
+
+.. code:: python
+
+    self._leftover = b''.join([bytes, self._leftover])
+    
+.. class:: ref
+
+Django 1.5.1: django/http/multipartparser.py, Line 355
+
+----
+
+MANY COPIES
+===========
+
+.. code:: python
+
+    result = ''
+    for text in make_a_lot_of_text():
+        result = result + text
+    return result
+
+----
+
+:data-x: r-25
+:data-y: r80
+:data-scale: 0.5
+:class: highlight concat1
+
+----
+
+:data-x: r1025
+:data-y: r-80
+:data-scale: 1
+
+ONE COPY!
+=========
+
+.. code:: python
+
+    texts = make_a_lot_of_text()
+    result = ''.join(texts)
+    return result
+    
+----
+
+:data-x: r-35
+:data-y: r63
+:data-scale: 0.5
+:class: highlight concat2
+
+----
+
+:data-x: r1035
+:data-y: r-63
+:data-scale: 1
+
+INSERT BENCHMARKS HERE
+======================
+
+If I get that damn benchmarking module finished.
+
+
+----
+
+:data-x: r1000
+:data-y: r0
+:data-scale: 1
+
+Foo
+

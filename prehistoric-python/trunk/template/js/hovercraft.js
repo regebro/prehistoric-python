@@ -37,6 +37,9 @@ if (impressConsole) {
 }
 
 // Set up remote swipes:
-var remotes = new Remotes("preview");
-remotes.on("swipe-left", impress().next);
-remotes.on("swipe-right", impress().prev);
+// Set up remote swipes:
+if (window.top===window.self) {
+    var remotes = new Remotes("preview");
+    remotes.on("swipe-left", impress().next);
+    remotes.on("swipe-right", impress().prev);
+}
