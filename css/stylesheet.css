@@ -173,6 +173,7 @@ pre {
     font-size: 150%;
     margin-left: 2em;
     width: -moz-fit-content;
+    width: -webkit-fit-content;
     margin: auto;
 }
 
@@ -316,5 +317,20 @@ div.highlight.present {
 .sort5 {
     height: 60px;
     width: 405px;
+}
+
+.mutable1 {
+    height: 60px;
+    width: 435px;
+}
+
+.mutable2 {
+    height: 60px;
+    width: 570px;
+}
+
+.mutable3 {
+    height: 60px;
+    width: 680px;
 }
 
