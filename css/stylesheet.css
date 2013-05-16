@@ -334,3 +334,16 @@ div.highlight.present {
     width: 680px;
 }
 
+.defaultdict1 {
+    height: 60px;
+    width: 680px;
+}
+
+.defaultdict2 {
+    height: 60px;
+    width: 575px;
+}
+
+.reveal.future {
+    display: none;
+}

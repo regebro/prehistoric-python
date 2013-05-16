@@ -98,6 +98,35 @@ DEFAULTDICT
 
 ----
 
+:data-x: r-85
+:data-y: r62
+:data-scale: 0.5
+:class: highlight defaultdict1
+
+.. note::
+
+    We create a defaultdict with in this case a set as the type of the
+    values.
+
+----
+
+:data-x: r-21
+:data-y: r67
+:data-scale: 0.5
+:class: highlight defaultdict2
+
+.. note::
+
+    And we can now rely on that any key we use exists, because if it
+    doesn't, then the defaultdict will create a new set for that key.
+  
+
+----
+
+:data-x: r884
+:data-y: r-129
+:data-scale: 1
+
 DICTS OF MUTABLES
 =================
 
@@ -145,32 +174,21 @@ DICTS OF MUTABLES
 
   But if it doesn't, it adds the key with a set as a value.
 
-  This example code is a function that is called on dictionaries, because
-  it needs to be called from several places. But in one place there
-  is this variant, because here it doesn't add one item, but a list of items,
-  so it needs to use update instead of add.
+  Now, why do you need to know and recognize this pattern? It's outdated.
+  You won't use it. It only exists in old unmaintained code, right?
 
+  Well, I found this example here:
   
 ----
 
-:data-x: r1000
-:data-y: r-113
-:data-scale: 1
+:data-x: r0
+:data-y: r65
+:data-scale: 0.5
+:class: reveal
 
-DICTS OF MUTABLES
-=================
+``Django-1.5.1: django/db/models/sql/query.py``
+-----------------------------------------------
 
-.. code:: python
-
-    if key in data:
-        data[key].add(value)
-    else:
-        data[key] = set([value])
-
-
-.. class:: ref
-
-    Django-1.5.1: django/db/models/sql/query.py
 
 .. note::
 
@@ -179,11 +197,14 @@ DICTS OF MUTABLES
     Why? Because the code once supported Python 2.4. It doesn't anymore
     but nobody has changed it. It works... It's definitely not a speed issue.
     
+    Anybody here on Jython?
+    
 
 ----
 
 :data-x: r1000
-:data-y: r0
+:data-y: r-178
+:data-scale: 1
 
 SPEED
 =====
