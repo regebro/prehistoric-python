@@ -1,5 +1,5 @@
 :css: css/stylesheet.css
-:skip-help: true
+:skip-help: false
 :title: Prehistoric Patterns in Python
 :auto-console: false
 
@@ -77,12 +77,7 @@ On Afternoon 16:35, Friday 17th of May, 2013
     Willkommen, bienvenue, welcome, to the positively last talk of DjangoCon
     Circus.
     
-    In this talk we will see how Python code in ye olden days had to jump
-    through hoops of fire to achieve the simplest things.
-    
-    OK, maybe not hoops of fire. But this is going to be about old code
-    patterns that you don't use today, because there are no wbetter ways to
-    do it.
+    And this is going to be about old code patterns, both real and mythical!
     
 ----
 
@@ -101,8 +96,8 @@ DEFAULTDICT
 
 .. note::
 
-   I'll start off with some patterns that center around dictionaries, and
-   this first one is a fairly common pattern.
+   I'll start off with a patterns about dictionaries, and this one is a
+   fairly common pattern.
    
    When you have many values per key, so that every value in your dictionary should
    be a list or a set or a tuple or another dictionary, or in fact anything mutable,
@@ -167,7 +162,7 @@ DICTS OF MUTABLES
 
 .. note::
 
-  This looks if the key we are currently looking at exists in the dictionary.
+  Does the key exist in the dictionary?
   
 ----
 
@@ -178,7 +173,7 @@ DICTS OF MUTABLES
 
 .. note::
 
-  And if it does, it adds the value to the existing set.
+  And if it does, add the value to the existing set.
 
 ----
 
@@ -214,25 +209,14 @@ DICTS OF MUTABLES
     Why? Because the code once supported Python 2.4. It doesn't anymore
     but nobody has changed it. It works...
     
-    Anybody here on Jython?
+    And I know what you think now, because I thought it! You think, maybe the
+    clever core developers aren't using defaultdict because it's slow!
     
-
 ----
 
 :data-x: r1200
 :data-y: 0
 :data-scale: 1
-
-INSERT BENCHMARKS HERE
-======================
-
-If I get that damn benchmarking module finished.
-
-.. note::
-
-    Well... I did finish the benchmarks! This morning!
-    
-----
 
 ``defaultdict`` vs ``add_to_dict()``
 ====================================
@@ -247,13 +231,15 @@ If I get that damn benchmarking module finished.
 
 .. note::
 
+    And it isn't. Except on Jython.
+
     Using a defaultdict is 1.6 times faster on CPython, 1.2 times on PyPy,
     and for some reason less three times as slow on Jython!
     
     I guess the Jython defaultdict implementation is very unoptimized.
     Using defaultdict is less code = less bugs and faster!
 
-    Next up, sets!
+    OK, enough about dictionaries, now sets!
 
 ----
 
@@ -296,7 +282,8 @@ SETS BEFORE SETS
 
 .. note::
 
-    Yes! Dictionary keys!
+    Yes! Dictionary keys! So in fact I lied, this pattern isn't about sets,
+    it's about dictionaries too!
     
     This code example makes a list unique by putting it into a dictionary
     as keys with a value of None, and then getting a list of keys back.
@@ -345,7 +332,7 @@ SETS BEFORE SETS
 .. note::
 
     However, sets are a little bit faster than dictionaries.
-
+    
 ----
 
 SORTING
@@ -369,8 +356,8 @@ Django 1.5.1: extras/csrf_migration_helper.py
 
 .. note::
 
-    OK, enough with dictionaries. Now lets talk about sorting.
-    This code is also from Python 1.5.1.    
+    OK, enough with dictionaries for real now. Now lets talk about sorting.
+    This code is also from Django 1.5.1.
     
 ----
 
@@ -512,8 +499,8 @@ SORTING WITH CMP
     The next old sorting pattern *is* all about speed. And this is nothing
     you will find in Django 1.5, because this doesn't even work under Python 3.
     
-    So this example is from Plone, which doesn't run on Python 3.
-
+    So this example is from Plone, and in fact an old version of Plone, Plone 4.0.
+    
 ----
 
 :data-x: r-203
@@ -527,8 +514,9 @@ SORTING WITH CMP
     indication that this is old, this code is from the time when Plone still
     supported Python 2.3. Another indication is that it calls the copy "sorted".
     
-    So for clarity I'll refactor this code to use sorted and function instead
-    of a lambda.
+    But I already covered sort() vs sorted(), for clarity I'll refactor this
+    code to use sorted and also use a function instead of a lambda, because
+    it's easier to read.
     
 ----
 
@@ -544,7 +532,7 @@ SORTING WITH CMP
     def compare(x, y):
         return cmp(x.modified(), y.modified())
         
-    return sorted(cmp=compare)
+    return sorted(catalog_sequence, cmp=compare)
 
 .. note::
 
@@ -587,6 +575,10 @@ AVERAGE # CALLS
 +--------+---------+----------+
 
 .. class:: ref
+
+    Reference: Jarret Hardie in Python Magazine
+
+.. note::
 
     Reference: Jarret Hardie in Python Magazine
 
@@ -671,7 +663,11 @@ CONDITIONAL EXPRESSIONS
 
 .. note::
 
-    blank_choice is a parameter. What if it is something that evaluates to
+    This looks like a logic expression, but it isn't. It's a sneaky
+    conditonal! If means that if include_blank is True, then first_choice
+    gets set to blank_choice other wise it's an empty list.
+
+    But blank_choice is a parameter. What if it is something that evaluates to
     false, like a None or an empty set?
     
     Yes: first_choice will be an empty list, not what you pass in as blank_choice.
@@ -879,7 +875,7 @@ Django 1.5.1: django/http/multipartparser.py, Line 355
 
 .. note::
 
-    And now, the 
+    And now, the prehistoric pattern that was the catalyst for this talk.
 
     You'll hear many people claiming that concatenating strings
     with + is slow, and that doing a join is faster.
@@ -887,14 +883,14 @@ Django 1.5.1: django/http/multipartparser.py, Line 355
     concatenation, so now it is fast.
     
     But of course, not on PyPy. At least according to the PyPy
-    people.
+    people. Unless you have a compile time parameter, apparently.
 
     So let's look at the benchmarks.
     
 ----
 
-``s1 + s2`` vs ``''.join((s1, s2))``
-====================================
+``__add__`` vs ``.join``
+========================
 
 +------------+-------+
 | Python 2.4 | 1.5x  |
@@ -917,6 +913,9 @@ Django 1.5.1: django/http/multipartparser.py, Line 355
     And this is the best I can do. It adds strings between 0 and 999
     characters long. There is overhead in the tests, but I believe that it's
     not enough to make a significant difference to the numbers.
+    
+    And you see that using addition to concatenate is faster.
+    Even on Python 2.4!
     
     So where does this claim that join is faster come from?
     I think this is a big misunderstandning.
@@ -950,24 +949,20 @@ Much faster:
     
 ----
 
-THE MISUNDERSTANDING
-====================
+``__add__`` vs ``.join``
+========================
 
-But this:
-
-.. code:: python
-
-    self._leftover = bytes + self._leftover
-    
-is not slower than this:
-
-.. code:: python
-
-    self._leftover = b''.join([bytes, self._leftover])
-    
-.. class:: ref
-
-Django 1.5.1: django/http/multipartparser.py, Line 355
++------------+--------+
+| Python 2.4 | 0.5x   |
++------------+--------+
+| Python 2.7 | 0.5x   |
++------------+--------+
+| Python 3.3 | 0.5x   |
++------------+--------+
+| PyPy 1.9   | 1.0x   |
++------------+--------+
+| Jython 2.7 | 0.004x |
++------------+--------+
 
 ----
 
@@ -1010,3 +1005,84 @@ ONE COPY!
 :data-scale: 0.5
 :class: highlight concat2
 
+----
+
+:data-x: r1235
+:data-y: 0
+:data-scale: 1
+
+THE MISUNDERSTANDING
+====================
+
+.. code:: python
+
+    self._leftover = bytes + self._leftover
+
+.. note::
+
+    This only copies each of the strings once.
+
+----    
+
+:data-x: r1200
+:data-y: 0
+:data-scale: 1
+
+THE MISUNDERSTANDING
+====================
+
+.. code:: python
+
+    self._leftover = b''.join([bytes, self._leftover])
+    
+.. class:: ref
+
+Django 1.5.1: django/http/multipartparser.py, Line 355
+
+.. note::
+
+    This also copies the strings ony once, but it goes via
+    creating a list. And creating that list also takes time.
+
+----
+
+WHEN TO USE WHAT?
+=================
+
+.. note::
+
+    So if adding strings are fast when you are adding two strings, and
+    joining is fast if you have many strings, where is the breakpoint?
+    
+    Well, it depends. It depends on how long your strings are and how many
+    you have. With typical cases it seems join() is faster on CPython
+    at somewhere around 4-5 strings.
+    
+    With PyPy up to ten strings are still as fast to use addition as to use
+    join, and I stopped testing there because it was getting silly.
+    
+    
+----
+
+CLOSING CONCATENATION CONCLUSION
+================================
+
+.. note::
+
+    I like alliteration. Can you tell?
+    
+    The conclusion is that you should do what feels natural. If the easiest
+    way to concatenate a bunch of strings is by using +, then do that. If the
+    strings you have are in a list or generated in a loop, then use join.
+
+    And it's the same with calculating constants outside of the loop.
+    It feels like it should be faster, and it often is. Python is such
+    a fantastic language partly because what intuitively feels like the
+    right thing to do, tends to in fact be the right thing to do.
+    
+    And on that bombshell, I say thank you for listening!
+    
+----
+
+THANKS!
+=======
