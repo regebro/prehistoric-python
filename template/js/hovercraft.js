@@ -32,7 +32,7 @@ if (impressConsole) {
     
     var impressattrs = document.getElementById('impress').attributes
     if (impressattrs.hasOwnProperty('auto-console') && impressattrs['auto-console'].value.toLowerCase() === 'true') {
-        consoleWindow = console().open();
+        consoleWindow = impressConsole().open();
     }
 }
 
