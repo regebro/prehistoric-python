@@ -1,7 +1,7 @@
 :css: css/stylesheet.css
-:skip-help: false
+:skip-help: true
 :title: Prehistoric Patterns in Python
-:auto-console: false
+:auto-console: true
 
 ----
 
@@ -69,7 +69,7 @@ Grandest Night of the Season!
 
 .. class:: poster playfair afternoon
 
-On Afternoon 16:35, Friday 17th of May, 2013
+On Afternoon 16:05, Friday 17th of May, 2013
 
 .. note::
 
