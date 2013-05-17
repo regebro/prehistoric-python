@@ -223,6 +223,17 @@ DICTS OF MUTABLES
 :data-y: 0
 :data-scale: 1
 
+INSERT BENCHMARKS HERE
+======================
+
+If I get that damn benchmarking module finished.
+
+.. note::
+
+    Well... I did finish the benchmarks! This morning!
+    
+----
+
 ``defaultdict`` vs ``add_to_dict()``
 ====================================
 
@@ -858,11 +869,58 @@ OUTSIDE VS INSIDE
 STRING CONCATENATION
 ====================
 
-**Prehistoric Claim:**
+.. code:: python
 
-Don't use ``+``
----------------
+    self._leftover = b''.join([bytes, self._leftover])
+    
+.. class:: ref
 
+Django 1.5.1: django/http/multipartparser.py, Line 355
+
+.. note::
+
+    And now, the 
+
+    You'll hear many people claiming that concatenating strings
+    with + is slow, and that doing a join is faster.
+    But, since CPython 2.5 there are optimizations in string
+    concatenation, so now it is fast.
+    
+    But of course, not on PyPy. At least according to the PyPy
+    people.
+
+    So let's look at the benchmarks.
+    
+----
+
+``s1 + s2`` vs ``''.join((s1, s2))``
+====================================
+
++------------+-------+
+| Python 2.4 | 1.5x  |
++------------+-------+
+| Python 2.7 | 1.4x  |
++------------+-------+
+| Python 3.3 | 1.3x  |
++------------+-------+
+| PyPy 1.9   | 1.0x  |
++------------+-------+
+| Jython 2.7 | 1.8x  |
++------------+-------+
+
+.. note::
+
+    These benchmarks have been a big problem. It's been very hard to get
+    something sensible, simple, that measures actual concatention, and
+    doesn't get completely optimized away by PyPy.
+    
+    And this is the best I can do. It adds strings between 0 and 999
+    characters long. There is overhead in the tests, but I believe that it's
+    not enough to make a significant difference to the numbers.
+    
+    So where does this claim that join is faster come from?
+    I think this is a big misunderstandning.
+    
 ----
 
 THE MISUNDERSTANDING
@@ -951,15 +1009,4 @@ ONE COPY!
 :data-y: r63
 :data-scale: 0.5
 :class: highlight concat2
-
-----
-
-:data-x: r1235
-:data-y: 0
-:data-scale: 1
-
-INSERT BENCHMARKS HERE
-======================
-
-If I get that damn benchmarking module finished.
 
