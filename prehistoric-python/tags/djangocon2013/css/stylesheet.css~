@@ -1,0 +1,87 @@
+@font-face {
+    font-family: 'Chivo';
+    src: url('chivo-black-webfont.eot');
+    src: url('chivo-black-webfont.eot?#iefix') format('embedded-opentype'),
+         url('chivo-black-webfont.woff') format('woff'),
+         url('chivo-black-webfont.ttf') format('truetype'),
+         url('chivo-black-webfont.svg#chivoblack') format('svg');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Chivo';
+    src: url('chivo-regular-webfont.eot');
+    src: url('chivo-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('chivo-regular-webfont.woff') format('woff'),
+         url('chivo-regular-webfont.ttf') format('truetype'),
+         url('chivo-regular-webfont.svg#chivoregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Diplomata SC';
+    src: url('diplomatasc-regular-webfont.eot');
+    src: url('diplomatasc-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('diplomatasc-regular-webfont.woff') format('woff'),
+         url('diplomatasc-regular-webfont.ttf') format('truetype'),
+         url('diplomatasc-regular-webfont.svg#diplomata_scregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Holtwood One SC';
+    src: url('holtwoodonesc-webfont.eot');
+    src: url('holtwoodonesc-webfont.eot?#iefix') format('embedded-opentype'),
+         url('holtwoodonesc-webfont.woff') format('woff'),
+         url('holtwoodonesc-webfont.ttf') format('truetype'),
+         url('holtwoodonesc-webfont.svg#holtwood_one_scregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Playfair Display SC';
+    src: url('playfairdisplaysc-black-webfont.eot');
+    src: url('playfairdisplaysc-black-webfont.eot?#iefix') format('embedded-opentype'),
+         url('playfairdisplaysc-black-webfont.woff') format('woff'),
+         url('playfairdisplaysc-black-webfont.ttf') format('truetype'),
+         url('playfairdisplaysc-black-webfont.svg#playfair_display_scblack') format('svg');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Playfair Display SC';
+    src: url('playfairdisplaysc-bold-webfont.eot');
+    src: url('playfairdisplaysc-bold-webfont.eot?#iefix') format('embedded-opentype'),
+         url('playfairdisplaysc-bold-webfont.woff') format('woff'),
+         url('playfairdisplaysc-bold-webfont.ttf') format('truetype'),
+         url('playfairdisplaysc-bold-webfont.svg#playfair_display_scbold') format('svg');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Playfair Display SC';
+    src: url('playfairdisplaysc-regular-webfont.eot');
+    src: url('playfairdisplaysc-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('playfairdisplaysc-regular-webfont.woff') format('woff'),
+         url('playfairdisplaysc-regular-webfont.ttf') format('truetype'),
+         url('playfairdisplaysc-regular-webfont.svg#playfair_display_scregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Rye';
+    src: url('rye-regular-webfont.eot');
+    src: url('rye-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('rye-regular-webfont.woff') format('woff'),
+         url('rye-regular-webfont.ttf') format('truetype'),
+         url('rye-regular-webfont.svg#ryeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
