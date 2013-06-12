@@ -1,89 +1,30 @@
 :css: css/stylesheet.css
 :skip-help: true
 :title: Prehistoric Patterns in Python
-:auto-console: true
+:auto-console: false
 
 ----
 
 :data-y: 0
 
-.. class:: poster playfair bold pablo
+Prehistoric Patterns in Python
+==============================
 
-PABLO FANQUE CIRCUS ROYAL,
+Lennart Regebro
 
-.. class:: poster playfair warsaw
-
-WARSAW, POLAND
-
-.. class:: poster rye djangocon
-
-DJANGOCON EU BONANZA
-
-.. class:: poster chivo black positively
-
-AND POSITIVELY THE
-
-.. class:: poster playfair presentation
-
-LAST PRESENTATION
-
-.. class:: poster playfair counting
-
-not counting the lightning talks
-
-.. class:: poster chivo being bold
-
-BEING FOR THE 
-
-.. class:: poster chivo benefit bold
-
-BENEFIT OF MR PONY
-
-.. class:: poster diplomata prehistoric
-
-PREHISTORIC
-
-.. class:: poster diplomata  patterns
-
-PATTERNS 
-
-.. class:: poster diplomata python
-
-IN PYTHON
-
-.. class:: poster holtwood lennart
-
-LENNART REGEBRO, ESQ.
-
-.. class:: poster playfair celebrated
-
-THE CELEBRATED PYTHON HUGGER!
-
-.. class:: poster playfair plone black
-
-PLONE DANCER, VAULTER, RIDER ETC.
-
-.. class:: poster rye grandest
-
-Grandest Night of the Season!
-
-.. class:: poster playfair afternoon
-
-On Afternoon 16:05, Friday 17th of May, 2013
+DevConf 2013, Moscow
 
 .. note::
 
-    Meine damen unt herren, mesdames et messieurs, ladies and gentlemen!
-    Willkommen, bienvenue, welcome, to the positively last talk of DjangoCon
-    Circus.
+    This talk is going to be about old code patterns, both real and mythical!
     
-    And this is going to be about old code patterns, both real and mythical!
-    
+    Because the standard patterns in Python has changed throughout time, as Python gained more features.
+
 ----
 
 :data-x: 1200
 
-DEFAULTDICT
+Defaultdict
 ===========
 
 .. code:: python
@@ -107,8 +48,8 @@ DEFAULTDICT
 
 ----
 
-:data-x: r-85
-:data-y: r62
+:data-x: r-120
+:data-y: r67
 :data-scale: 0.5
 :class: highlight defaultdict1
 
@@ -119,8 +60,8 @@ DEFAULTDICT
 
 ----
 
-:data-x: r-21
-:data-y: r67
+:data-x: r-23
+:data-y: r81
 :data-scale: 0.5
 :class: highlight defaultdict2
 
@@ -135,11 +76,11 @@ DEFAULTDICT
 
 ----
 
-:data-x: r1306
+:data-x: r1343
 :data-y: 0
 :data-scale: 1
 
-DICTS OF MUTABLES
+Dicts Of Mutables
 =================
 
 .. code:: python
@@ -155,8 +96,8 @@ DICTS OF MUTABLES
    
 ----
 
-:data-x: r-93
-:data-y: r11
+:data-x: r-102
+:data-y: r8
 :data-scale: 0.5
 :class: highlight mutable1
 
@@ -166,8 +107,8 @@ DICTS OF MUTABLES
   
 ----
 
-:data-x: r92
-:data-y: r34
+:data-x: r100
+:data-y: r41
 :data-scale: 0.5
 :class: highlight mutable2
 
@@ -177,8 +118,8 @@ DICTS OF MUTABLES
 
 ----
 
-:data-x: r28
-:data-y: r68
+:data-x: r32
+:data-y: r79
 :data-scale: 0.5
 :class: highlight mutable3
 
@@ -193,13 +134,14 @@ DICTS OF MUTABLES
   
 ----
 
-:data-x: r-27
-:data-y: r65
+:data-x: r-30
+:data-y: r80
 :data-scale: 0.5
 :class: reveal
 
-``Django-1.5.1: django/db/models/sql/query.py``
------------------------------------------------
+``Django-1.5.1:``
+
+``django/db/models/sql/query.py``
 
 
 .. note::
@@ -237,9 +179,8 @@ DICTS OF MUTABLES
     and for some reason less three times as slow on Jython!
     
     I guess the Jython defaultdict implementation is very unoptimized.
-    Using defaultdict is less code = less bugs and faster!
-
-    OK, enough about dictionaries, now sets!
+    
+    Using defaultdict is less code = less bugs and it's faster as well!
 
 ----
 
@@ -247,7 +188,132 @@ DICTS OF MUTABLES
 :data-y: 0
 :data-scale: 1
 
-SETS
+What about ``setdefault``?
+==========================
+
+.. code:: python
+
+    val = data.setdefault(key, set())
+    val.add(newvalue)
+
+
+.. note::
+
+
+    Why is functions like ``add_to_dict()`` created, when there is setdefault?
+    Using setdefault is shorter, and clearer, right? And less code and more clarity means less bugs?
+    
+    Well...
+    
+    Not only is setdefault misnamed. It sounds like it sets a default. In fact what it does is
+    *get* a value of a key, and if that key does not exist, *then* it sets it to a default.
+    Hence most people simply don't know what it does.
+    
+    Secondly, as you see in the example above, it needs to create an empty set for each call,
+    even if it doesn't actually use it. 
+    
+    
+----
+
+:data-x: r1200
+:data-y: 0
+:data-scale: 1
+
+.. code:: python
+
+    val = data.setdefault(key, 0)
+    data[key] = val + newvalue
+
+.. note::
+    
+    So setdefault makes more sense in cases where the default value isn't mutable.
+
+    OK, enough about defaultdict. Now let's talk about the standard dictionary!
+
+----
+
+The dict is ``in``
+==================
+
+.. note::
+
+    It has also changed quite a lot throughout time. The most common changed you are likely to
+    encounter are 'keys()' and 'has_key()'.
+
+----
+
+.. code:: python
+
+    for x in mydict.keys():
+    
+.. note::
+
+    And now you say that ``keys()`` is not outdated, but in fact it mostly is.
+    Up until Python 2.1, you had to use the keys() method to get a list if the keys,
+    if you wanted to loop over them for example.
+    
+----
+
+.. code:: python
+
+    for x in mydict:
+    
+.. note::
+
+    Today you would simply do for x in mydict instead. This avoids creating
+    a separate list object and using up memory for that.
+    Sure, you can also use iterkeys(), but there is no point, and iterkeys()
+    is gone in Python 3. So the code shown here is the best way to do it.
+
+----
+
+.. code:: python
+
+    keys = mydict.keys()
+    
+
+.. note::
+
+    The same goes for making a list of the keys. The old way is to call keys().
+    But in Python 3 keys() doesn't return a list anymore.
+
+----
+
+.. code:: python
+
+    keys = list(mydict)
+    
+.. note::
+
+    So the best way is to not use keys() or iterkeys(), and just pass the
+    dictionary directly to the list constructor.
+
+
+----
+
+.. code:: python
+
+    if mydict.has_key(x):
+    
+.. note::
+
+    And the same goes for the old has_key().
+    
+    
+----
+
+.. code:: python
+
+    if x in mydict:
+    
+.. note::
+
+    OK, enough about dictionaries, now let's talk about sets!
+
+----
+
+
+Sets
 ====
 
 Unique values
@@ -269,7 +335,7 @@ Fast lookup
 
 ----
 
-SETS BEFORE SETS
+Sets Before Sets
 ================
 
 .. code:: python
@@ -283,7 +349,7 @@ SETS BEFORE SETS
 .. note::
 
     Yes! Dictionary keys! So in fact I lied, this pattern isn't about sets,
-    it's about dictionaries too!
+    it's also about dictionaries!
     
     This code example makes a list unique by putting it into a dictionary
     as keys with a value of None, and then getting a list of keys back.
@@ -335,7 +401,7 @@ SETS BEFORE SETS
     
 ----
 
-SORTING
+Sorting
 =======
 
 **Prehistoric code:**
@@ -361,8 +427,8 @@ Django 1.5.1: extras/csrf_migration_helper.py
     
 ----
 
-:data-x: r-266
-:data-y: r-5
+:data-x: r-305
+:data-y: r-19
 :data-scale: 0.5
 :class: highlight sort1
 
@@ -372,8 +438,8 @@ Django 1.5.1: extras/csrf_migration_helper.py
     
 ----
 
-:data-x: r293
-:data-y: r68
+:data-x: r336
+:data-y: r81
 :data-scale: 0.7
 :class: highlight sort2
 
@@ -383,8 +449,8 @@ Django 1.5.1: extras/csrf_migration_helper.py
 
 ----
 
-:data-x: r-127
-:data-y: r33
+:data-x: r-144
+:data-y: r39
 :data-scale: 0.5
 :class: highlight sort3
 
@@ -395,8 +461,8 @@ Django 1.5.1: extras/csrf_migration_helper.py
     
 ----
 
-:data-x: r-152
-:data-y: r52
+:data-x: r-169
+:data-y: r59
 :data-scale: 0.5
 :class: highlight sort4
 
@@ -406,11 +472,11 @@ Django 1.5.1: extras/csrf_migration_helper.py
     
 ----
 
-:data-x: r1452
+:data-x: r1482
 :data-y: 0
 :data-scale: 1
 
-SORTING
+Sorting
 =======
 
 .. code:: python
@@ -439,7 +505,7 @@ SORTING
 :data-y: 0
 :data-scale: 1
 
-SORTING
+Sorting
 =======
 
 .. code:: python
@@ -456,8 +522,8 @@ SORTING
 
 ----
 
-:data-x: r-149
-:data-y: r114
+:data-x: r-157
+:data-y: r128
 :data-scale: 0.5
 :class: highlight sort5
 
@@ -477,12 +543,12 @@ SORTING
     
 ----
 
-:data-x: r1349
+:data-x: r1357
 :data-y: 0
 :data-scale: 1
 
-SORTING WITH CMP
-================
+Sorting with ``cmp``
+====================
 
 .. code:: python
 
@@ -503,8 +569,8 @@ SORTING WITH CMP
     
 ----
 
-:data-x: r-203
-:data-y: r1
+:data-x: r-173
+:data-y: r-15
 :data-scale: 0.5
 :class: highlight cmp1
 
@@ -520,12 +586,12 @@ SORTING WITH CMP
     
 ----
 
-:data-x: r1403
+:data-x: r1373
 :data-y: 0
 :data-scale: 1
 
-SORTING WITH CMP
-================
+Sorting with ``cmp``
+====================
 
 .. code:: python
 
@@ -540,8 +606,8 @@ SORTING WITH CMP
     
 ----
 
-:data-x: r27
-:data-y: r45
+:data-x: r76
+:data-y: r50
 :data-scale: 0.7
 :class: highlight cmp2
 
@@ -555,7 +621,7 @@ SORTING WITH CMP
     
 ----
 
-:data-x: r1173
+:data-x: r1124
 :data-y: 0
 :data-scale: 1
 
@@ -588,8 +654,8 @@ AVERAGE # CALLS
 :data-y: r0
 :data-scale: 1
 
-SORTING WITH KEY
-================
+Sorting with ``key``
+====================
 
 .. code:: python
 
@@ -604,8 +670,8 @@ SORTING WITH KEY
 
 ----
 
-:data-x: r6
-:data-y: r45
+:data-x: r68
+:data-y: r49
 :data-scale: 0.5
 :class: highlight cmp3
 
@@ -616,11 +682,11 @@ SORTING WITH KEY
     
 ----
 
-:data-x: r1194
+:data-x: r1132
 :data-y: 0
 :data-scale: 1
 
-AVERAGE # CALLS
+Average # Calls
 ===============
 
 +--------+---------+----------+
@@ -649,7 +715,7 @@ AVERAGE # CALLS
 
 :data-x: r1200
 
-CONDITIONAL EXPRESSIONS
+Conditional Expressions
 =======================
 
 .. code:: python
@@ -678,7 +744,7 @@ CONDITIONAL EXPRESSIONS
 
 ----
 
-CONDITIONAL EXPRESSIONS
+Conditional Expressions
 =======================
 
 .. code:: python
@@ -690,9 +756,10 @@ CONDITIONAL EXPRESSIONS
     This is the new syntax for one line conditionals. When I say "New" I mean
     since Python 2.5.
 
+
 ----
 
-CONSTANTS AND LOOPS
+Constants and Loops
 ===================
 
 .. code:: python
@@ -714,7 +781,7 @@ CONSTANTS AND LOOPS
 
 ----
 
-OUTSIDE VS INSIDE
+Outside vs Inside
 =================
 
 ``5 * 3.5``
@@ -743,7 +810,7 @@ OUTSIDE VS INSIDE
     
 ----
 
-OUTSIDE VS INSIDE
+Outside vs Inside
 =================
 
 ``5 / 3.5``
@@ -774,7 +841,6 @@ OUTSIDE VS INSIDE
 ----
 
 ``result = len(some_iterable) * 17.5``
-======================================
 
 .. note:
 
@@ -786,8 +852,8 @@ OUTSIDE VS INSIDE
     
 ----
 
-CONSTANTS AND LOOPS
-===================
+Outside vs Inside
+=================
 
 .. code:: python
 
@@ -803,7 +869,7 @@ CONSTANTS AND LOOPS
 
 ----
 
-OUTSIDE VS INSIDE
+Outside vs Inside
 =================
 
 ``each * 5 * a_var``
@@ -830,7 +896,7 @@ OUTSIDE VS INSIDE
     
 ----
 
-OUTSIDE VS INSIDE
+Outside vs Inside
 =================
 
 ``each * 5 ** a_var``
@@ -862,7 +928,7 @@ OUTSIDE VS INSIDE
 
 ----
 
-STRING CONCATENATION
+String Concatenation
 ====================
 
 .. code:: python
@@ -922,7 +988,7 @@ Django 1.5.1: django/http/multipartparser.py, Line 355
     
 ----
 
-THE MISUNDERSTANDING
+The Misunderstanding
 ====================
 
 This is slow:
@@ -936,7 +1002,7 @@ This is slow:
 
 ----
 
-THE MISUNDERSTANDING
+The Misunderstanding
 ====================
 
 Much faster:
@@ -966,7 +1032,7 @@ Much faster:
 
 ----
 
-MANY COPIES
+Many Copies
 ===========
 
 .. code:: python
@@ -978,14 +1044,14 @@ MANY COPIES
 
 ----
 
-:data-x: r-25
-:data-y: r80
+:data-x: r-28
+:data-y: r87
 :data-scale: 0.5
 :class: highlight concat1
 
 ----
 
-:data-x: r1225
+:data-x: r1228
 :data-y: 0
 :data-scale: 1
 
@@ -1000,18 +1066,18 @@ ONE COPY!
     
 ----
 
-:data-x: r-35
-:data-y: r63
+:data-x: r-41
+:data-y: r69
 :data-scale: 0.5
 :class: highlight concat2
 
 ----
 
-:data-x: r1235
+:data-x: r1241
 :data-y: 0
 :data-scale: 1
 
-THE MISUNDERSTANDING
+The Misunderstanding
 ====================
 
 .. code:: python
@@ -1028,7 +1094,7 @@ THE MISUNDERSTANDING
 :data-y: 0
 :data-scale: 1
 
-THE MISUNDERSTANDING
+The Misunderstanding
 ====================
 
 .. code:: python
@@ -1046,7 +1112,7 @@ Django 1.5.1: django/http/multipartparser.py, Line 355
 
 ----
 
-WHEN TO USE WHAT?
+When to Use What?
 =================
 
 .. note::
@@ -1064,7 +1130,7 @@ WHEN TO USE WHAT?
     
 ----
 
-CLOSING CONCATENATION CONCLUSION
+Closing Concatenation Conclusion
 ================================
 
 .. note::
@@ -1079,10 +1145,22 @@ CLOSING CONCATENATION CONCLUSION
     It feels like it should be faster, and it often is. Python is such
     a fantastic language partly because what intuitively feels like the
     right thing to do, tends to in fact be the right thing to do.
-    
-    And on that bombshell, I say thank you for listening!
-    
+        
 ----
 
-THANKS!
+Thanks!
 =======
+
+Thanks to everyone who suggested outdated idioms, even if I didn't include them:
+
+Radomir Dopieralski, 
+James Tauber,
+Sasha Matijasic,
+Brad Allen,
+Antonio Sagliocco,
+Doug Hellman,
+Domen Kožar,
+Christophe Simonis
+
+Made with Hovercraft!
+---------------------
