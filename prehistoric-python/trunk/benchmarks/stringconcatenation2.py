@@ -24,6 +24,14 @@ def join_f():
 
 join_b = Benchmark(join_f, description = "Joining a list: s1 = ''.join(l)")
 
+from operator import add
+def reduce_f():
+    l = []
+    for x in range(999, -1, -1):
+        l.append(strings[x])
+    b = reduce(add, l)
+
+reduce_b = Benchmark(reduce_f, description = "Reducing a list: s1 = reduce(add, l)")
 
 def extend_f():
     b = ''
@@ -32,4 +40,4 @@ def extend_f():
 
 extend_b = Benchmark(extend_f, description = "iadd: s1 += s2")
 
-suite = Suite([simple_b, join_b, extend_b])
+suite = Suite([simple_b, join_b, extend_b, reduce_b])
