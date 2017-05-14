@@ -12,20 +12,19 @@ def defaultdict_f():
         d[k].add(0)
     for k in dupes:
         d[k].add(0)
-      
-      
-def add_to_dict(data, key, value):
-    if key in data:
-        data[key].add(value)
-    else:
-        data[key] = set([value])
 
 def normaldict_f():
     d = {}
     for k in keys:
-        add_to_dict(d, k, 0)
+        if k in d:
+            d[k].add(0)
+        else:
+            d[k] = set([0])
     for k in dupes:
-        add_to_dict(d, k, 0)
+        if k in d:
+            d[k].add(0)
+        else:
+            d[k] = set([0])
 
 defaultdict_b = Benchmark(defaultdict_f, description = "defaultdict")
 normaldict_b = Benchmark(normaldict_f, description = "dict")

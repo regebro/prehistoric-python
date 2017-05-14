@@ -3,315 +3,195 @@
 :title: Prehistoric Patterns in Python
 :auto-console: false
 
-----
+.. header::
 
-:data-y: 0
+    .. image:: images/shoobx.png
+
+----
 
 Prehistoric Patterns in Python
 ==============================
 
-Lennart Regebro
+.. class:: name
 
-DevConf 2013, Moscow
+    Lennart Regebro
+
+PyCon US 2017, Portland
 
 .. note::
+
+    Hi! So yes, I'm Lennart, I've been working with Python fulltime since 2001.
+    Most of the time with web development.
+
+----
+
+.. note::
+
+    I work for Boston company Shoobx. We make a webapp that
+    anyone with a corporation should use, especially startups.
+    I'm not gonna bore you with what we do, it's legal stuff, but if you work
+    for a startup tell the bosses about us, they'll love us.
+
+----
+
+.. image:: images/magda_elenor.jpg
+    :class: left
+    :width: 70%
+
+.. image:: images/elenor_quince.jpg
+    :class: right
+    :width: 29.5%
+
+.. image:: images/cats.jpg
+    :class: left
+    :width: 50%
+
+.. image:: images/quince.jpg
+    :class: right
+    :width: 50%
+
+.. note::
+
+    I'm born in Swedish occupied territor, but I live in Poland, with my
+    wife, daughter, cats and fruit trees. But enough about me!
 
     This talk is going to be about old code patterns, both real and mythical!
-    
-    Because the standard patterns in Python has changed throughout time, as Python gained more features.
+
+    Because the standard patterns in Python has changed throughout time,
+    as Python gained more features. But there is loads of old code out there,
+    so I will try to explain why that old code looks like it does, and why
+    you should change it.
 
 ----
 
-:data-x: 1200
+.. image:: images/django.png
 
-Defaultdict
-===========
+.. class:: ref
 
-.. code:: python
-
-    from collections import defaultdict
-
-    data = defaultdict(set)
-    
-    data[key].add(value)
+    Photo: Reinout van Rees
 
 .. note::
 
-   I'll start off with a patterns about dictionaries, and this one is a
-   fairly common pattern.
-   
-   When you have many values per key, so that every value in your dictionary should
-   be a list or a set or a tuple or another dictionary, or in fact anything mutable,
-   you use a defaultdict.
-   
-   Essentially, if you access a key that doesn't exist, it creates the key!
-
-----
-
-:data-x: r-120
-:data-y: r67
-:data-scale: 0.5
-:class: highlight defaultdict1
-
-.. note::
-
-    We create a defaultdict with in this case a set as the type of the
-    values.
-
-----
-
-:data-x: r-23
-:data-y: r81
-:data-scale: 0.5
-:class: highlight defaultdict2
-
-.. note::
-
-    And we can now rely on that any key we use exists, because if it
-    doesn't, then the defaultdict will create a new set for that key.
-    
-    So we can just add to that key.
-    
-    But defaultdict only landed in Python in 2.5, so how did you do before this?  
-
-----
-
-:data-x: r1343
-:data-y: 0
-:data-scale: 1
-
-Dicts Of Mutables
-=================
-
-.. code:: python
-
-    if key in data:
-        data[key].add(value)
-    else:
-        data[key] = set([value])
-
-.. note::
-
-    Well, you did your check manually.
-   
-----
-
-:data-x: r-102
-:data-y: r8
-:data-scale: 0.5
-:class: highlight mutable1
-
-.. note::
-
-  Does the key exist in the dictionary?
-  
-----
-
-:data-x: r100
-:data-y: r41
-:data-scale: 0.5
-:class: highlight mutable2
-
-.. note::
-
-  And if it does, add the value to the existing set.
-
-----
-
-:data-x: r32
-:data-y: r79
-:data-scale: 0.5
-:class: highlight mutable3
-
-.. note::
-
-  But if it doesn't, it adds the key with a set as a value.
-
-  Now, why do you need to know and recognize this pattern? It's outdated.
-  You won't use it. It only exists in old unmaintained code, right?
-
-  Well, I found this example here:
-  
-----
-
-:data-x: r-30
-:data-y: r80
-:data-scale: 0.5
-:class: reveal
-
-``Django-1.5.1:``
-
-``django/db/models/sql/query.py``
-
-
-.. note::
-
-    Yeah, Django 1.5.1.
-    
-    Why? Because the code once supported Python 2.4. It doesn't anymore
-    but nobody has changed it. It works...
-    
-    And I know what you think now, because I thought it! You think, maybe the
-    clever core developers aren't using defaultdict because it's slow!
-    
-----
-
-:data-x: r1200
-:data-y: 0
-:data-scale: 1
-
-``defaultdict`` vs ``add_to_dict()``
-====================================
-
-+---------+------+
-| CPython | 1.6x |
-+---------+------+
-| PyPy    | 1.2x |
-+---------+------+
-| Jython  | 0.3x |
-+---------+------+
-
-.. note::
-
-    And it isn't. Except on Jython.
-
-    Using a defaultdict is 1.6 times faster on CPython, 1.2 times on PyPy,
-    and for some reason less three times as slow on Jython!
-    
-    I guess the Jython defaultdict implementation is very unoptimized.
-    
-    Using defaultdict is less code = less bugs and it's faster as well!
-
-----
-
-:data-x: r1200
-:data-y: 0
-:data-scale: 1
-
-What about ``setdefault``?
-==========================
-
-.. code:: python
-
-    val = data.setdefault(key, set())
-    val.add(newvalue)
-
-
-.. note::
-
-
-    Why is functions like ``add_to_dict()`` created, when there is setdefault?
-    Using setdefault is shorter, and clearer, right? And less code and more clarity means less bugs?
-    
-    Well...
-    
-    Not only is setdefault misnamed. It sounds like it sets a default. In fact what it does is
-    *get* a value of a key, and if that key does not exist, *then* it sets it to a default.
-    Hence most people simply don't know what it does.
-    
-    Secondly, as you see in the example above, it needs to create an empty set for each call,
-    even if it doesn't actually use it. 
-    
-    
-----
-
-:data-x: r1200
-:data-y: 0
-:data-scale: 1
-
-.. code:: python
-
-    val = data.setdefault(key, 0)
-    data[key] = val + newvalue
-
-.. note::
-    
-    So setdefault makes more sense in cases where the default value isn't mutable.
-
-    OK, enough about defaultdict. Now let's talk about the standard dictionary!
-
-----
-
-The dict is ``in``
-==================
-
-.. note::
-
-    It has also changed quite a lot throughout time. The most common changed you are likely to
-    encounter are 'keys()' and 'has_key()'.
-
-----
-
-.. code:: python
-
-    for x in mydict.keys():
-    
-.. note::
-
-    And now you say that ``keys()`` is not outdated, but in fact it mostly is.
-    Up until Python 2.1, you had to use the keys() method to get a list if the keys,
-    if you wanted to loop over them for example.
-    
-----
-
-.. code:: python
-
-    for x in mydict:
-    
-.. note::
-
-    Today you would simply do for x in mydict instead. This avoids creating
-    a separate list object and using up memory for that.
-    Sure, you can also use iterkeys(), but there is no point, and iterkeys()
-    is gone in Python 3. So the code shown here is the best way to do it.
-
-----
-
-.. code:: python
-
-    keys = mydict.keys()
-    
-
-.. note::
-
-    The same goes for making a list of the keys. The old way is to call keys().
-    But in Python 3 keys() doesn't return a list anymore.
-
-----
-
-.. code:: python
-
-    keys = list(mydict)
-    
-.. note::
-
-    So the best way is to not use keys() or iterkeys(), and just pass the
-    dictionary directly to the list constructor.
-
+    And old does not mean unmaintained. If you wrote a library that needed to
+    support Python 2.4 old patterns may very well remain, because they still
+    work. I did a shorter version of this talk on a Django Con EU a few years
+    back, typically using examples from what was then the latest version of
+    Django, because Django once supported Python 2.4.
+
+    But don't look for those patterns in Django now. By the end of the talk
+    the Django maintainers had pushed fixes for most of them. :-)
+
+    And it's also easy to just keep going with your old code patterns even
+    when they aren't needed, so often new code uses old patterns as well,
+    because that's what the programmer is used to. Us old programmers are
+    extra susceptible to this.
+
+    And, old tutorials and old books have old patterns. And people keep using
+    them.
+
+    Let's start!
 
 ----
 
 .. code:: python
 
     if mydict.has_key(x):
-    
+
 .. note::
 
-    And the same goes for the old has_key().
-    
-    
+    OK, firstly, stop doing this.
+
 ----
 
 .. code:: python
 
     if x in mydict:
-    
+
 .. note::
+
+    This has been the norm since Python 2.2. It's been 15 years. has_key
+    doesn't even exist in Python 3. Stop using has_key() on dictionaries. And
+    you probably think I'm silly for mentioning this. Let me present to you,
+    github!
+
+----
+
+.. image:: images/has_key_usage_1.png
+
+.. image:: images/has_key_usage_2.png
+
+
+.. note::
+
+    Yes, when you search for this on github, has_key tends to show up in
+    commits about every five minutes or so.
+
+----
+
+.. image:: images/has_key_commit_1.png
+    :width: 100%
+
+.. note::
+
+    I even found this! But don't worry, the actual commit replaces has_key
+    with in. It's just the commit message that is backwards.
+
+----
+
+.. code:: python
+
+    for x in mydict.keys():
+
+.. note::
+
+    And this isn't that much better.
+
+----
+
+.. image:: images/keys_usage_1.png
+
+.. note::
+
+    This is way less common than has_key, but still happens.
+    In fact, if you are using the keys() method at all,
+    you are probably doing it wrong.
+
+----
+
+.. code:: python
+
+    keys = mydict.keys()
+
+
+.. note::
+
+    This is also fairly common. But...
+
+----
+
+.. code:: python
+
+    keys = list(mydict)
+
+.. note::
+
+    This is nicer if you want a list.
+
+----
+
+.. code:: python
+
+    eater = iter(mydict)
+
+.. note::
+
+    And if you want an iterator, this is the way to do it. In addition the
+    keys method has different results in Python 2.7 and Python 3, but list()
+    and iter() has the same result.
 
     OK, enough about dictionaries, now let's talk about sets!
 
 ----
-
 
 Sets
 ====
@@ -324,38 +204,44 @@ Fast lookup
 
 .. note::
 
-    Sets are useful, the values in a set must be unique, lookup in sets 
+    Sets are useful, the values in a set must be unique, lookup in sets
     are fast, although they aren't ordered.
-    
-    Sets first appeared as a standard library module in Python 2.3, and 
+
+    Sets first appeared as a standard library module in Python 2.3, and
     as a built in type in Python 2.4.
-    
+
     So what did you do before? What else do we have that has Unique values,
     fast lookup and no ordering?
 
 ----
-
-Sets Before Sets
-================
 
 .. code:: python
 
     d = {}
     for each in list_of_things:
         d[each] = None
-        
+
     list_of_things = d.keys()
 
 .. note::
 
     Yes! Dictionary keys! So in fact I lied, this pattern isn't about sets,
     it's also about dictionaries!
-    
+
     This code example makes a list unique by putting it into a dictionary
     as keys with a value of None, and then getting a list of keys back.
 
-    I could not, to my dissapointment find any examples of this in Django. :-)
-    
+
+----
+
+.. code:: python
+
+    list_of_things = set(list_of_things)
+
+.. note::
+
+    Today you would just do this instead.
+
     Another usage of dictionary keys like this is when you wanted to do very
     fast lookups. Checking if a value exists in a dictionary is way faster
     than checking if it exists in a list.
@@ -365,268 +251,160 @@ Sets Before Sets
 ``dicts`` vs ``lists``
 ======================
 
-+------------+------+
-| Python 2.7 | 40x  |
-+------------+------+
-| Python 3.3 | 50x  |
-+------------+------+
-| PyPy 1.9   | 200x |
-+------------+------+
++------------+-----+
+| Python 2.7 | 45x |
++------------+-----+
+| Python 3.6 | 60x |
++------------+-----+
+| PyPy2 5.4  | 35x |
++------------+-----+
+| PyPy3 5.5  | 35x |
++------------+-----+
 
 .. note::
 
     This is simply looking if a value exists in a dictionary vs a list.
-    Data is random integers.
-    
+    Data is random integers, the set is 200 random integers. Yes, just 200.
+
     And as you see, dictionaries are *way* faster than lists. So it
     used to be a pattern that if you needed to do that a lot, you used
     a dictionary.
-    
+
+    And this means that if you are making a lookup to see if some values
+    exist in a list, consider that maybe it should be a set instead.
+
 ----
 
 ``sets`` vs ``dicts``
 =====================
 
 +------------+-------+
-| Python 2.7 | 1.1x  |
+| Python 2.7 | 1.05x |
 +------------+-------+
-| Python 3.3 | 1.05x |
+| Python 3.6 | 1.05x |
 +------------+-------+
-| PyPy 1.9   | 1.06x |
+| PyPy2 5.4  | 1.03x |
++------------+-------+
+| PyPy3 5.5  | 1.01x |
 +------------+-------+
 
 .. note::
 
-    However, sets are a little bit faster than dictionaries.
-    
-----
-
-Sorting
-=======
-
-**Prehistoric code:**
-
-.. code:: python
-
-    retval = []
-    for tn in template_names:
-        retval.extend(search_python(python_code, tn))
-    retval = list(set(retval))
-    retval.sort()
-    return retval
-
-
-.. class:: ref
-
-Django 1.5.1: extras/csrf_migration_helper.py
-
-.. note::
+    And don't worry, sets are a little bit faster than dictionaries.
 
     OK, enough with dictionaries for real now. Now lets talk about sorting.
-    This code is also from Django 1.5.1.
-    
+
 ----
 
-:data-x: r-305
-:data-y: r-19
-:data-scale: 0.5
-:class: highlight sort1
+.. image:: images/cookbook1.png
 
 .. note::
 
-    First it creates a list to return.
-    
-----
+    Remember I mentioned old books and tutorials? Yeah, this is from the
+    Python Cookbook as you can see. Probably 1st edition, from 2002. Why
+    people commit it to Github in 2016 I don't know.
 
-:data-x: r336
-:data-y: r81
-:data-scale: 0.7
-:class: highlight sort2
-
-.. note::
-
-    The it fills that list with values.
+    Let's look at the code.
 
 ----
-
-:data-x: r-144
-:data-y: r39
-:data-scale: 0.5
-:class: highlight sort3
-
-.. note::
-
-    And makes the list of values unique by converting it into a set, and
-    then back into a list.
-    
-----
-
-:data-x: r-169
-:data-y: r59
-:data-scale: 0.5
-:class: highlight sort4
-
-.. note::
-
-    And lastly it sorts the list before returning it.
-    
-----
-
-:data-x: r1482
-:data-y: 0
-:data-scale: 1
-
-Sorting
-=======
 
 .. code:: python
 
-    retval = set()
-    for tn in template_names:
-        retval.update(search_python(python_code, tn))
-    retval = list(retval)
-    retval.sort()
-    return retval
+    keys = os.environ.keys()
+    keys.sort()
+    for x in keys:
+        print x,
 
 .. note::
 
-    Now of course, the first mistake in this code is to use a list in
-    the first place. That's not a prehistoric pattern, I think it's just
-    a mistake in the code in this case, likely the list(set()) call was
-    added later than the main loop.
-    
-    Sure, updating lists are faster than updating sets, but first
-    creating a long list and then making it a set is not faster than
-    using a set from the start.
-    
+    We already talked about not using keys. But worse here is that it uses
+    lists in-place-sorting sort() method. And that's because that was the only
+    option in 2002. But since Python 2.4 we have the sorted() builtin.
+
+----
+
+.. code:: python
+
+    for x in sorted(os.environ):
+        print x,
+
+.. note::
+
+    Much better. Because less lines means less bugs.
+
+    Even better would have been if we could use a list
+    comprehension, of course. But we can't, because of the print statement.
+
+    Or... can we?
+
+
+----
+
+:data-y: r800
+:data-x: r-600
+
+.. code:: python
+
+    [print(x, end=' ') for x in sorted(os.environ)]
+
+.. note::
+
+    from __future__ import print_function
+
+    Of course we can. Not that you would use that except for debugging, would
+    you? That's OK, I won't judge you.
+
+----
+
+:data-y: r0
+:data-x: r1200
+
+.. image:: images/judge.jpg
+
+[Yes I will]
+
+.. note::
+
+    OK, that was a small diversion, back to sorting, because we aren't done!
+
+----
+
+:data-y: r-800
+:data-x: r-600
+
+.. note::
+
+    If you know that the iterable you are sorting is a list, you can sort it
+    in place with .sort(). But in other cases you don't know it. And sorted()
+    takes any iterable. It can be a list, or set or a generator. This makes
+    the code more robust.
+
+    Calling sort() on an existing list is a little bit faster than calling
+    sorted on the list, as it ends up creating a new list. But the difference
+    is very small, around 2%, less on PyPy.
+
 ----
 
 :data-x: r1200
 :data-y: 0
-:data-scale: 1
-
-Sorting
-=======
 
 .. code:: python
 
-    retval = set()
-    for tn in template_names:
-        retval.update(search_python(python_code, tn))
-    return sorted(retval)
+    candidates.sort(lambda a, b: -cmp(a[1], b[1]))
+
 
 .. note::
 
-    But the point here is this change. Instead of creating a list
-    and then sorting it, you can now use sorted().
+    The next old sorting pattern *is* all about speed.
+
+    This code, from a book about Django and Javascript, uses the standard way
+    of sorting a list by passing in a comparison function, in this case a
+    lambda.
+
+    comparison functions return 1, 0 or -1 to tell which item of the two is
+    larger, so by sticking a minus first you get a reverse sort.
 
 ----
-
-:data-x: r-157
-:data-y: r128
-:data-scale: 0.5
-:class: highlight sort5
-
-.. note::
-
-    Because less lines means less bugs.
-    
-    Now in the earlier case we know that the variable was a list, because we
-    just made the set into a list. But in other cases you don't know it.
-    And sorted() takes any iterable. It can be a list, or set or a generator.
-    This makes the code more robust.
-    
-    Calling sort() on an existing list is a little bit faster than calling
-    sorted on the list, as it ends up creating a new list. But the difference
-    is very small.
-    
-    
-----
-
-:data-x: r1357
-:data-y: 0
-:data-scale: 1
-
-Sorting with ``cmp``
-====================
-
-.. code:: python
-
-    sorted = catalog_sequence[:]
-    sorted.sort(lambda x, y: cmp(x.modified(), y.modified()))
-    return sorted
-    
-.. class:: ref
-
-    Plone 4.0: Products/CMFPlone/skins/plone_scripts/sort_modified_ascending.py
-    
-.. note::
-
-    The next old sorting pattern *is* all about speed. And this is nothing
-    you will find in Django 1.5, because this doesn't even work under Python 3.
-    
-    So this example is from Plone, and in fact an old version of Plone, Plone 4.0.
-    
-----
-
-:data-x: r-173
-:data-y: r-15
-:data-scale: 0.5
-:class: highlight cmp1
-
-.. note::
-
-    As you see here, this code first take a copy of the list, which is a good
-    indication that this is old, this code is from the time when Plone still
-    supported Python 2.3. Another indication is that it calls the copy "sorted".
-    
-    But I already covered sort() vs sorted(), for clarity I'll refactor this
-    code to use sorted and also use a function instead of a lambda, because
-    it's easier to read.
-    
-----
-
-:data-x: r1373
-:data-y: 0
-:data-scale: 1
-
-Sorting with ``cmp``
-====================
-
-.. code:: python
-
-    def compare(x, y):
-        return cmp(x.modified(), y.modified())
-        
-    return sorted(catalog_sequence, cmp=compare)
-
-.. note::
-
-    This is easier to read, but it has the same end-result.
-    
-----
-
-:data-x: r76
-:data-y: r50
-:data-scale: 0.7
-:class: highlight cmp2
-
-.. note::
-
-    And we see that the core of this is that it compares each object on the
-    modification date.
-
-    But since this uses a comparison method, it means it compares
-    pairs of objects. And the longer the list is, the more pairs are possible!
-    
-----
-
-:data-x: r1124
-:data-y: 0
-:data-scale: 1
-
-AVERAGE # CALLS
-===============
 
 +--------+---------+----------+
 | len(l) | # calls | Per item |
@@ -646,48 +424,28 @@ AVERAGE # CALLS
 
 .. note::
 
-    Reference: Jarret Hardie in Python Magazine
+    Buuuut, the comparison function compares pairs, and the longer the list is,
+    the more possible pairings is there.
+
+    Jarret Hardie in the sadly defunct Python Magazine wrote an article on this
+    and this is his numbers, and they sound reasonable. You see that long
+    lists quickly gets very slow to sort.
 
 ----
-
-:data-x: r1200
-:data-y: r0
-:data-scale: 1
-
-Sorting with ``key``
-====================
 
 .. code:: python
 
-    def get_key(x):
-        return x.modified()
-        
-    return sorted(key=get_key)
+    candidates.sort(key=lambda a: a[1], reverse=True)
 
 .. note::
 
-    But also since Python 2.4 we can sort with a key function instead.
+    So therefore, a key argument to sort() and sorted() was introduced
+    already in Python 2.4.
 
-----
-
-:data-x: r68
-:data-y: r49
-:data-scale: 0.5
-:class: highlight cmp3
-
-.. note::
-
-    The function now got much simpler, and has only one call.
+    The function now got much simpler, and has only one argument    .
     But how does the statistics look for how many calls the function gets?
-    
+
 ----
-
-:data-x: r1132
-:data-y: 0
-:data-scale: 1
-
-Average # Calls
-===============
 
 +--------+---------+----------+
 | len(l) | # calls | Per item |
@@ -705,226 +463,297 @@ Average # Calls
 
     Yeah, you get exactly one call per item, always.
     With the earlier code, we get in average 680,000 calls to the
-    modified() method when sorting 40.000 items. 
-    
-    Now we get 40,000 calls. That's 1/17th the amount of calls. Which
-    essentially means that sorting 40,000 items takes just a tenth of the
-    time.
-    
+    modified() method when sorting 40.000 items.
+
+    And the lambda only does one key lookup, not two, so we get 1/17th as
+    many key lookups on a list with 40.000 items. This makes sorting much
+    faster. 40.000 random integers take only around 20% of the time to sort.
+
+    That's it for sorting.
+
 ----
 
 :data-x: r1200
 
-Conditional Expressions
-=======================
-
 .. code:: python
 
-    first_choice = include_blank and blank_choice or []
-    
-
-.. class:: ref
-
-    Django-1.5.1: django/db/models/related.py
+    result = include_blank and blank_value or []
 
 .. note::
 
     This looks like a logic expression, but it isn't. It's a sneaky
-    conditonal! If means that if include_blank is True, then first_choice
-    gets set to blank_choice other wise it's an empty list.
+    conditonal! If means that if include_blank is True, then result
+    gets set to blank_value other wise it's an empty list.
 
-    But blank_choice is a parameter. What if it is something that evaluates to
+    But blank_value was a parameter. What if it is something that evaluates to
     false, like a None or an empty set?
-    
-    Yes: first_choice will be an empty list, not what you pass in as blank_choice.
-    
-    In this example from Django, this is not an important issue, because a blank
-    blank_choice makes no sense. But a blank blank_choice should really result in
-    an error because explicit is better than implicit.
+
+    Yes: result will be an empty list, not what you pass in as blank_value.
 
 ----
 
-Conditional Expressions
-=======================
-
 .. code:: python
 
-    first_choice = blank_choice if include_blank else []
-    
+    result = blank_value if include_blank else []
+
+
 .. note::
 
     This is the new syntax for one line conditionals. When I say "New" I mean
-    since Python 2.5.
-
+    since Python 2.5. The reason it was added so late is that Guido
+    supposedly didn't want a one line conditional at all, and I agree it's
+    not very readable, but his hand was forced, because people would make
+    the sneaky conditionals instead.
 
 ----
-
-Constants and Loops
-===================
 
 .. code:: python
 
-    const = 5 * 3.5
-    result = 0
-    for each in some_iterable:
-        result += const
-    
+    t = database.start()
+    try:
+        try:
+            t.insert(a_bunch_of_records)
+            t.commit()
+        except DatabaseException:
+            log.exception("Something went wrong!")
+            t.abort()
+    finally:
+        t.close()
+
 
 .. note::
 
-    This is a pattern that was suggested to me that I should bring up.
-    And I wasn't going to do it until I started benchmarking it.
-    
-    Here we see something simple, calculating a constant outside the loop.
-    That should speed up the loop, right because you don't have to calculate
-    the constant, right?
+    Yeah, this also isn't very readable. It's a made up example, of course,
+    no maintained code would still do this. But you might encounter it in
+    some old app somewhere, and more problematic, there are still tutorials
+    around that do things that are similar to this.
+
+    And what the code does, is that it does resource handling. We make sure
+    that the database transaction is aborted if something goes wrong, and
+    that it's closed at the end.
+
+    Context managers happened in Python 2.5 and try/except/finally also
+    happened in 2.5. Before that you had to nest one try/except inside a
+    try/finally, like this code, and it's those nested try statements that make
+    this code ugly.
 
 ----
-
-Outside vs Inside
-=================
-
-``5 * 3.5``
------------
-
-+------------+------+
-| Python 2.4 | 2.0x |
-+------------+------+
-| Python 2.7 | 1.0x |
-+------------+------+
-| Python 3.3 | 1.0x |
-+------------+------+
-| PyPy 1.9   | 1.0x |
-+------------+------+
-| Jython 2.7 | 1.2x |
-+------------+------+
-
-.. note::
-
-    Well, kinda. It used to be much faster, but since Python 2.5 it isn't.
-    CPython will find that multiplication and calculate only once.
-    In Jython it's still marginally faster to calculate it outside.
-    
-    PyPy of course is ridicolously fast with this code, it does this some
-    30-40 times faster than Python 2.7.
-    
-----
-
-Outside vs Inside
-=================
-
-``5 / 3.5``
------------
-
-+------------+------+
-| Python 2.4 | 2.0x |
-+------------+------+
-| Python 2.7 | 2.0x |
-+------------+------+
-| Python 3.3 | 1.0x |
-+------------+------+
-| PyPy 1.9   | 1.0x |
-+------------+------+
-| Jython 2.7 | 1.2x |
-+------------+------+
-
-.. note::
-
-    So if you have a division in the calculation, the Python 2.7 
-    gets slow again! 
-    
-    Python 3.3 and PyPy are still fine, though.
-    
-    But of course, my example is stupid. 5 * 3.5 is actually 17.5, so when you
-    have constants, you can simply change the code to the constant! Problem solved!
-    
-----
-
-``result = len(some_iterable) * 17.5``
-
-.. note:
-
-    And it can be replaced with this. Which is about 250 times faster. Except
-    on PyPy where it's just 10 times faster. Which is still twice as fast as
-    Python 2.7.
-    
-    So, let us take some less stupid example. 
-    
-----
-
-Outside vs Inside
-=================
 
 .. code:: python
 
-    const = 5 * a_var
-    result = 0
-    for each in some_iterable:
-        result += each * const
+    t = database.start()
+    try:
+        t.insert(a_bunch_of_records)
+        t.commit()
+    except DatabaseException:
+        log.exception("Something went wrong!")
+        t.abort()
+    finally:
+        t.close()
 
 .. note::
 
-    Here the constant is "semi-constant" and we multiply with each item in
-    the iterable. This makes more sense.
+    Already this is better.
 
 ----
 
-Outside vs Inside
-=================
+.. code:: python
 
-``each * 5 * a_var``
---------------------
-
-+------------+------+
-| Python 2.4 | 1.3x |
-+------------+------+
-| Python 2.7 | 1.3x |
-+------------+------+
-| Python 3.3 | 1.3x |
-+------------+------+
-| PyPy 1.9   | 1.0x |
-+------------+------+
-| Jython 2.7 | 1.7x |
-+------------+------+
+    with database.start() as t:
+        try:
+            t.insert(a_bunch_of_records)
+            t.commit()
+        except DatabaseException:
+            log.exception("Something went wrong!")
+            t.abort()
 
 .. note::
 
-    Now the optimization dissappeared. Calculating the constant outside
-    of the loop is now faster again.
-    
-    Except on PyPy which still succeeds in optimizing this.
-    
+    But of course, even better is with a context manager.
+    I like context managers.
+
 ----
 
-Outside vs Inside
-=================
+.. code:: python
 
-``each * 5 ** a_var``
----------------------
+    class MagicResource(object):
 
-+------------+------+
-| Python 2.4 | 1.8x |
-+------------+------+
-| Python 2.7 | 2.0x |
-+------------+------+
-| Python 3.3 | 2.0x |
-+------------+------+
-| PyPy 1.9   | 33x  |
-+------------+------+
-| Jython 2.7 | 6.4x |
-+------------+------+
+        def __del__(self):
+            # deallocate the object!
 
 .. note::
 
-    Unless you use a power in the calculation of the constant,
-    where PyPy's optimization also dissapears!
-    
-    On PyPy it's now 33 times faster to calculate this constant outside the loop!
-    But still twice as fast as Python 2.7.
-    
-    So this pattern turns out not to be prehistoric at all!
-    
-    You *should* calculate constants outside of the loop.
+    Here's another example of something people did, especially influenced by
+    Java and C++. This was never a good idea, as __del__ isn't guaranteed to
+    be called. A context manager would be the solution instead.
+
+    For the reason that it never was a good idea, I thought deallocating things
+    in dunder del would be unusual.
+
+----
+
+.. image:: images/del_use1.png
+
+.. note::
+
+    Boy was I wrong.
+
+----
+
+.. code:: python
+
+    self.assertRaises(DatabaseException, add_records,
+                      arg1, arg2, keyword=True)
+
+.. note::
+
+    On the topic of context managers, unittests assertRaises is a
+    contextmanager in 2.7 and later.
+
+----
+
+.. code:: python
+
+    with self.assertRaises(DatabaseException):
+        add_records(arg1, arg2, keyword=True)
+
+.. note::
+
+    So much nicer.
+
+----
+
+.. code:: python
+
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as dir:
+        # Do stuff
+
+.. note::
+
+    Also worth mentioning is that in Python 2.7 TemporaryFile and
+    NamedTemporaryFile are context managers. And in Python 3.2 and later
+    you also have TemporaryDirectory!
+
+----
+
+Stuck on Python 2?
+==================
+Sucks for you!
+==============
+
+.. note::
+
+    Next: Generators.
+
+----
+
+.. code:: python
+
+    def a_generator():
+        for x in another_generator():
+            yield x
+
+.. note::
+
+    Generators are awesome, I love generators. But this sort of code annoys
+    me every time. Why do I have to write such stupid code?
+
+----
+
+.. code:: python
+
+    def a_generator():
+        yield from another_generator()
+
+.. note::
+
+    In Python 3.3 and later, I don't!
+
+----
+
+Stuck on Python 2?
+==================
+Sucks for you!
+==============
+
+.. note::
+
+    On the topic of Generators, Python 3.7 will have a backwards incompatible
+    change I thought I should mention.
+
+----
+
+.. code:: python
+
+    def __next__(self):
+        x = self.foo()
+        if x == 0:
+            raise StopIteration
+        return x
+
+.. note::
+
+    Generators are a type of iterators, and iterators is any object with a
+    __next__ method. You signal the end of the iteration by raising a
+    StopIteration exception.
+
+----
+
+.. code:: python
+
+    def testgen(x):
+        while x < 100:
+            if x == 31:
+                raise StopIteration
+            x += 1+x
+            yield x
+
+.. note::
+
+    And so you should use StopIteration to stop the iteration ins a generator
+    as well, right? They are after all just fancy iterators, or?
+
+    Ah, well, no. This above does indeed work. But raising StopIteration in
+    generators can under specific circumstance cause some obscure bugs.
+
+----
+
+PEP 479
+=======
+
+.. note::
+
+    See PEP 479 if you want the details.
+
+----
+
+.. code::
+
+    >>> list(testgen(0))
+    RuntimeError: generator raised StopIteration
+
+.. note::
+
+    The end result is in any case that starting from Python 3.7, raising a
+    StopIteration in a generator in fact raises a RuntimeError.
+
+----
+
+.. code:: python
+
+    def testgen(x):
+        while x < 100:
+            if x == 31:
+                return
+            x += 1+x
+            yield x
+
+.. note::
+
+    The correct way is to just return. Returning from a generator in fact
+    raises StopIteration.
 
 ----
 
@@ -934,7 +763,7 @@ String Concatenation
 .. code:: python
 
     self._leftover = b''.join([bytes, self._leftover])
-    
+
 .. class:: ref
 
 Django 1.5.1: django/http/multipartparser.py, Line 355
@@ -947,12 +776,12 @@ Django 1.5.1: django/http/multipartparser.py, Line 355
     with + is slow, and that doing a join is faster.
     But, since CPython 2.5 there are optimizations in string
     concatenation, so now it is fast.
-    
+
     But of course, not on PyPy. At least according to the PyPy
     people. Unless you have a compile time parameter, apparently.
 
     So let's look at the benchmarks.
-    
+
 ----
 
 ``__add__`` vs ``.join``
@@ -975,17 +804,17 @@ Django 1.5.1: django/http/multipartparser.py, Line 355
     These benchmarks have been a big problem. It's been very hard to get
     something sensible, simple, that measures actual concatention, and
     doesn't get completely optimized away by PyPy.
-    
+
     And this is the best I can do. It adds strings between 0 and 999
     characters long. There is overhead in the tests, but I believe that it's
     not enough to make a significant difference to the numbers.
-    
+
     And you see that using addition to concatenate is faster.
     Even on Python 2.4!
-    
+
     So where does this claim that join is faster come from?
     I think this is a big misunderstandning.
-    
+
 ----
 
 The Misunderstanding
@@ -1012,7 +841,7 @@ Much faster:
     texts = make_a_lot_of_text()
     result = ''.join(texts)
     return result
-    
+
 ----
 
 ``__add__`` vs ``.join``
@@ -1063,7 +892,7 @@ ONE COPY!
     texts = make_a_lot_of_text()
     result = ''.join(texts)
     return result
-    
+
 ----
 
 :data-x: r-41
@@ -1088,7 +917,7 @@ The Misunderstanding
 
     This only copies each of the strings once.
 
-----    
+----
 
 :data-x: r1200
 :data-y: 0
@@ -1100,7 +929,7 @@ The Misunderstanding
 .. code:: python
 
     self._leftover = b''.join([bytes, self._leftover])
-    
+
 .. class:: ref
 
 Django 1.5.1: django/http/multipartparser.py, Line 355
@@ -1119,15 +948,15 @@ When to Use What?
 
     So if adding strings are fast when you are adding two strings, and
     joining is fast if you have many strings, where is the breakpoint?
-    
+
     Well, it depends. It depends on how long your strings are and how many
     you have. With typical cases it seems join() is faster on CPython
     at somewhere around 4-5 strings.
-    
+
     With PyPy up to ten strings are still as fast to use addition as to use
     join, and I stopped testing there because it was getting silly.
-    
-    
+
+
 ----
 
 Closing Concatenation Conclusion
@@ -1136,7 +965,7 @@ Closing Concatenation Conclusion
 .. note::
 
     I like alliteration. Can you tell?
-    
+
     The conclusion is that you should do what feels natural. If the easiest
     way to concatenate a bunch of strings is by using +, then do that. If the
     strings you have are in a list or generated in a loop, then use join.
@@ -1145,7 +974,176 @@ Closing Concatenation Conclusion
     It feels like it should be faster, and it often is. Python is such
     a fantastic language partly because what intuitively feels like the
     right thing to do, tends to in fact be the right thing to do.
-        
+
+----
+
+Constants and Loops
+===================
+
+.. code:: python
+
+    const = 5 * 3.5
+    result = 0
+    for each in some_iterable:
+        result += const
+
+
+.. note::
+
+    This is a pattern that was suggested to me that I should bring up.
+    And I wasn't going to do it until I started benchmarking it.
+
+    Here we see something simple, calculating a constant outside the loop.
+    That should speed up the loop, right because you don't have to calculate
+    the constant, right?
+
+----
+
+Outside vs Inside
+=================
+
+``5 * 3.5``
+-----------
+
++------------+------+
+| Python 2.4 | 2.0x |
++------------+------+
+| Python 2.7 | 1.0x |
++------------+------+
+| Python 3.3 | 1.0x |
++------------+------+
+| PyPy 1.9   | 1.0x |
++------------+------+
+| Jython 2.7 | 1.2x |
++------------+------+
+
+.. note::
+
+    Well, kinda. It used to be much faster, but since Python 2.5 it isn't.
+    CPython will find that multiplication and calculate only once.
+    In Jython it's still marginally faster to calculate it outside.
+
+    PyPy of course is ridicolously fast with this code, it does this some
+    30-40 times faster than Python 2.7.
+
+----
+
+Outside vs Inside
+=================
+
+``5 / 3.5``
+-----------
+
++------------+------+
+| Python 2.4 | 2.0x |
++------------+------+
+| Python 2.7 | 2.0x |
++------------+------+
+| Python 3.3 | 1.0x |
++------------+------+
+| PyPy 1.9   | 1.0x |
++------------+------+
+| Jython 2.7 | 1.2x |
++------------+------+
+
+.. note::
+
+    So if you have a division in the calculation, the Python 2.7
+    gets slow again!
+
+    Python 3.3 and PyPy are still fine, though.
+
+    But of course, my example is stupid. 5 * 3.5 is actually 17.5, so when you
+    have constants, you can simply change the code to the constant! Problem solved!
+
+----
+
+``result = len(some_iterable) * 17.5``
+
+.. note:
+
+    And it can be replaced with this. Which is about 250 times faster. Except
+    on PyPy where it's just 10 times faster. Which is still twice as fast as
+    Python 2.7.
+
+    So, let us take some less stupid example.
+
+----
+
+Outside vs Inside
+=================
+
+.. code:: python
+
+    const = 5 * a_var
+    result = 0
+    for each in some_iterable:
+        result += each * const
+
+.. note::
+
+    Here the constant is "semi-constant" and we multiply with each item in
+    the iterable. This makes more sense.
+
+----
+
+Outside vs Inside
+=================
+
+``each * 5 * a_var``
+--------------------
+
++------------+------+
+| Python 2.4 | 1.3x |
++------------+------+
+| Python 2.7 | 1.3x |
++------------+------+
+| Python 3.3 | 1.3x |
++------------+------+
+| PyPy 1.9   | 1.0x |
++------------+------+
+| Jython 2.7 | 1.7x |
++------------+------+
+
+.. note::
+
+    Now the optimization dissappeared. Calculating the constant outside
+    of the loop is now faster again.
+
+    Except on PyPy which still succeeds in optimizing this.
+
+----
+
+Outside vs Inside
+=================
+
+``each * 5 ** a_var``
+---------------------
+
++------------+------+
+| Python 2.4 | 1.8x |
++------------+------+
+| Python 2.7 | 2.0x |
++------------+------+
+| Python 3.3 | 2.0x |
++------------+------+
+| PyPy 1.9   | 33x  |
++------------+------+
+| Jython 2.7 | 6.4x |
++------------+------+
+
+.. note::
+
+    Unless you use a power in the calculation of the constant,
+    where PyPy's optimization also dissapears!
+
+    On PyPy it's now 33 times faster to calculate this constant outside the loop!
+    But still twice as fast as Python 2.7.
+
+    So this pattern turns out not to be prehistoric at all!
+
+    You *should* calculate constants outside of the loop.
+
 ----
 
 Thanks!
@@ -1153,7 +1151,7 @@ Thanks!
 
 Thanks to everyone who suggested outdated idioms, even if I didn't include them:
 
-Radomir Dopieralski, 
+Radomir Dopieralski,
 James Tauber,
 Sasha Matijasic,
 Brad Allen,
@@ -1164,3 +1162,5 @@ Christophe Simonis
 
 Made with Hovercraft!
 ---------------------
+
+----

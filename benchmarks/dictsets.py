@@ -12,7 +12,7 @@ dupset = listset + checks
 def dictset_f():
     for x in checks:
         x in dictset
-      
+
 def setset_f():
     for x in checks:
         x in setset

@@ -64,8 +64,13 @@
     font-style: italic;
 }
 
+.step {
+    width: 900px;
+}
+
+
 html {
-    background-color: linen;
+    background-color: white;
     text-align: center;
     letter-spacing: 0;
     font-size: 18px;
@@ -95,7 +100,7 @@ strong {
 pre {
     font-family: DejaVuSansMonoBook;
     text-align: left;
-    font-size: 150%;
+    font-size: 170%;
     width: -moz-fit-content;
     width: -webkit-fit-content;
     margin: auto;
@@ -211,3 +216,38 @@ div.highlight.present {
     height: 60px;
     width: 393px;
 }
+
+.left {
+    position: left;
+}
+
+.right {
+    position: right;
+}
+
+.header img {
+    width: 6em;
+    position: absolute;
+    top: 0;
+    left: 1em;
+    transition-property: width, top, left;
+    transition-duration: 1s;
+}
+
+
+#step-1 .name {
+    height: 3.1em;
+}
+
+.impress-on-step-1 .header img {
+    width: 16%;
+    top: 48%;
+    left: 42%;
+}
+
+.impress-on-step-2 .header img {
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
