@@ -226,7 +226,7 @@ div.highlight.present {
 }
 
 .header img {
-    width: 6em;
+    width: 16%;
     position: absolute;
     top: 0;
     left: 1em;
@@ -245,9 +245,12 @@ div.highlight.present {
     left: 42%;
 }
 
-.impress-on-step-2 .header img {
+.impress-on-step-3 .header img {
     width: 100%;
-    top: 0;
+    top: -100px;
     left: 0;
 }
 
+.blurb {
+    margin-top: 50%;
+}
