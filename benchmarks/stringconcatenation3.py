@@ -19,7 +19,7 @@ def setup_u():
 def add_two_f(char, null):
     result = null
     for x in xrange(1000):
-        result = result + x * char
+        result = result + (x * char)
 
 add_two_b_b = Benchmark(add_two_f, setup=setup_b,
                         description="Simple byte concatenation: s1 = s1 + s2")

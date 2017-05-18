@@ -21,7 +21,7 @@ PyCon US 2017, Portland
 .. note::
 
     Hi! So yes, I'm Lennart Unpronouncable, I've been working with Python
-    fulltime since 2001. Most of the time with web development.
+    fulltime since 2001.
 
 ----
 
@@ -43,7 +43,7 @@ PyCon US 2017, Portland
 
 .. note::
 
-    I'm born in Swedish occupied territory, but I live in Poland, with my
+    I'm born in Sweden, but I live in Poland, with my
     wife, daughter, cats and fruit trees.
 
 ----
@@ -82,17 +82,16 @@ PyCon US 2017, Portland
 
     This talk is going to be about old code patterns.
 
-    Because the standard patterns in Python has changed throughout time,
-    as Python gained more features. But there is loads of old code out there,
-    so I will try to explain why that old code looks like it does, and why
-    you should change it.
+    Because has Python gained more features, so some things we used to do
+    make no more sense. But there is loads of old code out there, so I will
+    try to explain why that old code looks like it does.
 
     And old does not mean unmaintained. If you wrote a library that needed to
     support Python 2.4 old patterns may very well remain, because they still
     work. So you might very well encounter this in maintained code.
 
     And, old tutorials and old books have old patterns. And people keep using
-    them.
+    them and learning them.
 
     So if you are using these patterns, don't feel bad, I won't judge you.
 
@@ -124,10 +123,9 @@ PyCon US 2017, Portland
 
 .. note::
 
-    This has been the norm since Python 2.2. It's been 15 years. has_key
-    doesn't even exist in Python 3. Stop using has_key() on dictionaries. And
-    you probably think I'm silly for mentioning this. Let me present to you,
-    github!
+    "in" has been the norm since Python 2.2. It's been 15 years. has_key
+    doesn't even exist in Python 3. And you probably think I'm silly for
+    mentioning this. Let me present to you, github search!
 
 ----
 
@@ -138,8 +136,9 @@ PyCon US 2017, Portland
 
 .. note::
 
-    Yes, when you search for this on github, has_key tends to show up in
-    commits about every five minutes or so.
+    Yes, when you search for has_key on github, it tends to show every few
+    minutes or so. Not that people add it very often, but they are maintaining
+    code that still uses has_key() without changing it.
 
 ----
 
@@ -162,8 +161,9 @@ PyCon US 2017, Portland
 
 .. note::
 
-    Here is another little thing you don't need to do now: using the keys()
-    method to get a list of keys.
+    Here is another little thing you don't need to do: using the keys()
+    method to iterate over a list. It's not as common as has_keys() but
+    there is a fair amount of matches on githib for this.
 
 ----
 
@@ -185,7 +185,7 @@ PyCon US 2017, Portland
 
 .. note::
 
-    In fact, if you are using the keys() method at all,
+    But still, if you are using the keys() method at all,
     you are probably doing it wrong.
 
 ----
@@ -197,7 +197,7 @@ PyCon US 2017, Portland
 .. note::
 
     This is also fairly common. But the keys method has different results in
-    Python 2.7 and Python 3.
+    Python 2.7 and Python 3. Only in Python 2 is it a list.
 
 ----
 
@@ -207,7 +207,7 @@ PyCon US 2017, Portland
 
 .. note::
 
-    This is of course nicer if you want a list. You all do this, right? No?
+    This is better, it will always make a list.
 
 ----
 
@@ -218,8 +218,9 @@ PyCon US 2017, Portland
 .. note::
 
     And if you want an iterator, this is the way to do it, although you
-    usually want an iterator because you want to iterate over it and you
-    can iterate over a dictionary keys without calling iter() first, so...
+    usually want an iterator because you want to iterate over it and you can
+    iterate over a dictionary without calling iter() first, so I don't know
+    why you ever would do this.
 
     OK, enough about dictionaries, now let's talk about sets!
 
@@ -237,11 +238,8 @@ Fast lookup
     Sets are useful, the values in a set must be unique and lookup in sets
     are fast.
 
-    Sets first appeared as a standard library module in Python 2.3, and
-    as a built in type in Python 2.4.
-
-    So what did you do before? What else do we have that has Unique values
-    and fast lookup?
+    Sets first appeared in Python 2.3. So what did you do before? What else
+    do we have that has Unique values and fast lookup?
 
 ----
 
@@ -294,9 +292,10 @@ Fast lookup
     This is simply looking if a value exists in a dictionary vs a list.
     Data is random integers, the set is 200 random integers. Yes, just 200.
 
-    And as you see, dictionaries are *way* faster than lists. So it
-    used to be a pattern that if you needed to do that a lot, you used
-    a dictionary.
+    And as you see, dictionaries are *way* faster than lists. So it used to
+    be a pattern that if you needed to do that a lot, you used a dictionary.
+    If you see dict where all values always are None or zero, this maybe be
+    what is happening.
 
     And this means that if you are making a lookup to see if some values
     exist in a list, consider that maybe it should be a set instead.
@@ -343,9 +342,10 @@ Fast lookup
 
 .. note::
 
-    We already talked about not using keys. But worse here is that it uses
-    lists in-place-sorting sort() method. And that's because that was the only
-    option in 2002. But since Python 2.4 we have the sorted() builtin.
+    This makes a list from a dictionary, and then sorts it with the lists
+    sort() method. And that's was the only way to stort things in 2002,
+    making a list and sorting it. But since Python 2.4 we have the sorted()
+    builtin.
 
 ----
 
@@ -356,15 +356,13 @@ Fast lookup
 
 .. note::
 
-    Much better. Because less lines means less bugs.
+    Much better. Because less lines means less bugs. And it also is more
+    robust to use sorted(), because sorted() takes any iterable. It can be a
+    list, set, generator or like in this case a dictionary. sort() only works
+    on lists.
 
-    If you know that the iterable you are sorting is a list, you can sort it
-    in place with .sort(). But in other cases you don't know it. And sorted()
-    takes any iterable. It can be a list, or set or a generator. This makes
-    the code more robust.
-
-    Even better would have been if we could use a list
-    comprehension, of course. But we can't, because of the print statement.
+    Even better would have been if we could use a list comprehension, of
+    course. But we can't, because of the print statement.
 
     Or... can we?
 
@@ -409,7 +407,7 @@ Sucks for you!
 
 .. code:: python
 
-    candidates.sort(lambda a, b: -cmp(a[1], b[1]))
+    vs = sorted(vs, lambda a, b: -cmp(a[1], b[1]))
 
 
 .. note::
@@ -446,18 +444,15 @@ Sucks for you!
 
 .. note::
 
-    Buuuut, the comparison function compares pairs, and the longer the list is,
-    the more possible pairings is there.
-
-    Jarret Hardie in the sadly defunct Python Magazine wrote an article on this
-    and this is his numbers, and they sound reasonable. You see that long
-    lists quickly gets very slow to sort.
+    Buuuut, the comparison function compares pairs, and the longer the list
+    is, the more possible pairings is there. You see that long lists have a lot
+    more calls per item.
 
 ----
 
 .. code:: python
 
-    candidates.sort(key=lambda a: a[1], reverse=True)
+    vs = sorted(vs, key=lambda a: a[1], reverse=True)
 
 .. note::
 
@@ -484,13 +479,13 @@ Sucks for you!
 .. note::
 
     Yeah, you get exactly one call per item, always.
-    With the earlier code, we get in average 680,000 calls to the
-    modified() method when sorting 40.000 items.
 
-    And the lambda only does one key lookup, not two, so we get 1/17th as
-    many key lookups on a list with 40.000 items. This makes sorting much
-    faster. 40.000 random integers take only around 20% of the time to sort.
+    With the cmp function we get around 17 times as many calls to getitem
+    as for with a key function. Yeah, 17. The slow bit of sorting is still
+    the actual sorting, but this makes a big difference.
 
+    40.000 random integers take only around 20% of the time to sort with a
+    key function instead of a cmp function.
 
 ----
 
@@ -503,9 +498,9 @@ Sucks for you!
 
 .. note::
 
-    Another thing that's deprecated is dunder cmp. This is gone in Python 3,
-    it's not used. Instead there are the so called "rich comparison
-    functions."
+    And just as the cmp comparison method is deprecated and gone under Python
+    3, so is the dunder cmp method on objects. Instead there are the so
+    called "rich comparison functions."
 
 ----
 
@@ -530,12 +525,11 @@ Sucks for you!
 
     There are plenty of reasons to use these instead of __cmp__, like the
     fact that some types may tested for equality, but not otherwise
-    comparable. You can for example test if a color is the same as another
-    color but which of the colours are bigger? There's no real answer there.
+    comparable. You can for example test if a color object is the same as
+    another color object but which of the colours are bigger?
 
     But __cmp__ has a big benefit, you only need to implement one method, not
-    six.
-
+    six, and this has meant that people were reluctant to use it.
 
 ----
 
@@ -556,61 +550,39 @@ Sucks for you!
     Functools to the rescue. With total_ordering you only need to implement
     __eq__ and either less than or greater than.
 
-    And if you still aren't convinced about not using __cmp__ and not using
-    list.sort(), consider this code, that I encountered on github.
-
-
 ----
 
 .. code:: python
 
-    def __cmp__(self, other):
-        return (self.dict.keys().sort() ==
-                other.dict.keys().sort())
-
-.. note::
-
-    I guess the poor soul that wrote this will sooner or later wonder why
-    all his objects are equal to each other. Ah well.
-
-    That's it for sorting. Next pattern!
-
-----
-
-.. code:: python
-
-    result = include_blank and blank_value or []
+    result = use_blank and blank_value or default
 
 .. note::
 
     This looks like a logic expression, but it isn't. It's a sneaky
-    conditonal!
+    conditonal expression!
 
-    It means that if include_blank is True, then result
-    gets set to blank_value other wise it's an empty list.
+    It means that if use_blank is True, then result
+    gets set to blank_value other wise it's set to default.
 
-    But blank_value was a parameter. What if it is something that evaluates to
+    But blank_value was a argument. What if it is something that evaluates to
     false, like a None or an empty set?
 
-    Yes: result will be an empty list, not what you pass in as blank_value.
+    Yes: result will be default, not what you pass in as blank_value.
 
 ----
 
 .. code:: python
 
-    result = blank_value if include_blank else []
+    result = blank_value if use_blank else default
 
 
 .. note::
 
-    This is how to do a conditional expression. It only arrived in Python 2.5,
-    because people couldn't agree on how it should look, and from what I
-    understand Guido didn't like any of the proposals.
-
-    And I agree it's not very readable, but his hand was forced, because
-    people would make these sneaky conditionals instead, so he then chose the
-    most pythonic form. And it's a bit weird, as the if statement comes in the
-    middle. But we're used to it now. :-)
+    This is how to do a conditional expression. It only arrived in Python
+    2.5, because people couldn't agree on how it should look, and I agree
+    it's not very readable, the condition is in the middle, so I tend to only
+    use it if I have to, which is when I have to use an expression, like
+    HTML templates or similar.
 
     Now, on to something slightly more complex, resource handling!
 
@@ -632,19 +604,14 @@ Sucks for you!
 
 .. note::
 
-    Yeah, this also isn't very readable. It's a made up example, of course,
-    no maintained code would still do this. But you might encounter it in
-    some old app somewhere, and more problematic, there are still tutorials
-    around that do things that are similar to this.
+    Yeah, this also isn't very readable. It's a made up example that make
+    sure that the database transaction is aborted if something goes wrong,
+    and that it's closed at the end no matter what.
 
-    And what the code does, is that it does resource handling. We make sure
-    that the database transaction is aborted if something goes wrong, and
-    that it's closed at the end.
-
-    Context managers happened in Python 2.5 and try/except/finally also
-    happened in 2.5. Before that you had to nest one try/except inside a
-    try/finally, like this code, and it's those nested try statements that make
-    this code ugly.
+    It's hard to read because it nests two try statements. try/except/finally
+    only happened in 2.5. Before that you had to nest one try/except inside a
+    try/finally, like this code, and it's those nested try statements that
+    make this code ugly.
 
 ----
 
@@ -679,7 +646,6 @@ Sucks for you!
 .. note::
 
     But of course, even better is with a context manager.
-    I like context managers.
 
 ----
 
@@ -692,9 +658,9 @@ Sucks for you!
 
 .. note::
 
-    Here's another example of something people did, especially influenced by
-    Java and C++. This was never a good idea, as __del__ isn't guaranteed to
-    be called. A context manager would be the solution instead.
+    Another way to deallocate resources was __del__. This was never a good
+    idea, as __del__ isn't guaranteed to be called. A context manager would
+    be the solution instead.
 
     For the reason that it never was a good idea, I thought deallocating things
     in dunder del would be unusual.
@@ -702,10 +668,12 @@ Sucks for you!
 ----
 
 .. image:: images/del_use1.png
+    :width: 75%
 
 .. note::
 
-    Boy was I wrong.
+    Boy was I wrong. There's tons of this. I think it's Java and C++ people
+    that do this when they switch to Python.
 
 ----
 
@@ -804,24 +772,6 @@ Sucks for you!
     subroutine etc. Yield from does all that for you, it will let a subroutine
     yield data directly to the called of the coroutine the correct way.
 
-----
-
-.. code:: python
-
-    async def http_get(domain):
-        reader, writer = await asyncio.open_connection(domain, 80)
-
-.. note::
-
-    And of course, Python 3.4 includes asyncio, and Python 3.5 makes it
-    even easier and nicer to use with the new async def and await keywords.
-
-    I've just started playing with this in a future version of Hovercraft!,
-    the presentation software I use for this talk, and where I before needed
-    tricky process handling that wouldn't alway exit correctly on ctrl-C etc,
-    asyncio seems to make all this so much simpler and robust.
-    We'll see, I'm gonna work on it during the sprints.
-
     On the topic of Generators and coroutines, Python 3.7 will have a
     backwards incompatible change I thought I should mention.
 
@@ -894,8 +844,34 @@ PEP 479
 
 .. note::
 
-    The correct way is to just return. Returning from a generator in fact
-    raises StopIteration.
+    The correct way is to just return. This will raise StopIteration.
+
+----
+
+.. code:: python
+
+    def testgen(x):
+        while x < 100:
+            if x == 31:
+                return "x can't be 31!"
+            x += 1+x
+            yield x
+
+.. note::
+
+    And in Python 3.3 you can even pass an argument into StopIteration by
+    returning a value.
+
+----
+
+Stuck on Python 2?
+==================
+Sucks for you!
+==============
+
+.. note::
+
+    And this again has to do with coroutines, which are magic.
 
 ----
 
@@ -951,10 +927,6 @@ PEP 479
 
 .. note::
 
-    These benchmarks have been a big problem. It's been very hard to get
-    something sensible, simple, that measures actual concatention, and
-    doesn't get completely optimized away by PyPy.
-
     And you see that using addition to concatenate is faster.
     Even on Python 2.4! So using join() was never faster!
 
@@ -963,10 +935,8 @@ PEP 479
 
 ----
 
-The Misunderstanding
-====================
-
 This is slow:
+=============
 
 .. code:: python
 
@@ -981,10 +951,8 @@ This is slow:
 
 ----
 
-The Misunderstanding
-====================
-
 Much faster:
+============
 
 .. code:: python
 
@@ -1021,62 +989,14 @@ Much faster:
 
 ----
 
-Many Copies
-===========
-
 .. code:: python
 
     result = ''
-    for text in long_list_of_text():
-        result = result + text
-    return result
-
-.. note::
-
-    And the reason is that Strings are immutable! This code creates a new
-    string and then copies the two input strings into that new string, once
-    for every loop. That's a lot of string creations and a lot of string
-    copying. And the first string will be copied over and over.
-
-----
-
-One Copy
-========
-
-.. code:: python
-
-    texts = long_list_of_text()
-    result = ''.join(texts)
-    return result
-
-.. note::
-
-    Here we only make one new string, and copy each string in the list into
-    that string. Each string gets copied only once, and only one new string
-    is created.
-
-----
-
-The Misunderstanding
-====================
-
-.. code:: python
-
-    self._leftover = bytes + self._leftover
-
-.. note::
-
-    But this also only copies each of the strings once. The optimization of
-    using join isn't relevant here.
-
-----
-
-.. code:: python
-
     for x in xrange(1000):
         result = result + x * char
 
 vs.
+===
 
 .. code:: python
 
@@ -1115,6 +1035,8 @@ With native strings
 .. note::
 
     Except on PyPy!
+
+    This is native strings, so byte strings on Python 2, Unicode on Python 3.
 
 ----
 
@@ -1159,6 +1081,22 @@ Constants and Loops
 
 ----
 
+Constants and Loops
+===================
+
+.. code:: python
+
+    result = 0
+    for each in some_iterable:
+        result += 5 * 3.5
+
+.. note::
+
+    This should reasonably be slower.
+    But the claim is that it isn't anymore. CPython optimizes this, since 2.5.
+
+----
+
 Outside vs Inside
 =================
 
@@ -1170,18 +1108,18 @@ Outside vs Inside
 +------------+------+
 | Python 2.7 | 1.0x |
 +------------+------+
-| Python 3.3 | 1.0x |
+| Python 3.6 | 1.0x |
 +------------+------+
-| PyPy  5.4  | 1.0x |
+| PyPy2  5.4 | 1.0x |
++------------+------+
+| PyPy2  5.5 | 1.0x |
 +------------+------+
 
 .. note::
 
-    Well, kinda. It used to be much faster, but since Python 2.5 it isn't.
-    CPython will find that multiplication and calculate only once.
-
-    PyPy of course is ridicolously fast with this code, it does this some
-    30-40 times faster than Python 2.7.
+    And yup. It used to be much faster to calculate it outside of the loop,
+    but since Python 2.5 it isn't. CPython will find that multiplication and
+    calculate only once.
 
 ----
 
@@ -1196,30 +1134,29 @@ Outside vs Inside
 +------------+------+
 | Python 2.7 | 2.0x |
 +------------+------+
-| Python 3.3 | 1.0x |
+| Python 3.6 | 1.0x |
 +------------+------+
-| PyPy 1.9   | 1.0x |
+| PyPy2 5.4  | 1.0x |
 +------------+------+
-| PyPy 5.5   | 2.6x |
+| PyPy3 5.5  | 1.0x |
 +------------+------+
 
 .. note::
 
-    So if you have a division in the calculation, the Python 2.7
+    But if you have a division in the calculation, the Python 2.7
     gets slow again!
 
-    Python 3.3 and PyPy are still fine, though.
+    Python 3 and PyPy are still fine, though.
 
-    But of course, my example is stupid. 5 * 3.5 is actually 17.5, so when you
-    have constants, you can simply change the code to the constant! Problem solved!
+    But of course, my example is stupid.
 
 ----
 
 ``result = len(some_iterable) * 17.5``
 
-.. note:
+.. note::
 
-    And it can be replaced with this. Which is about 250 times faster. Except
+    It can be replaced with this. Which is about 250 times faster. Except
     on PyPy where it's just 10 times faster. Which is still twice as fast as
     Python 2.7.
 
@@ -1239,8 +1176,8 @@ Outside vs Inside
 
 .. note::
 
-    Here the constant is "semi-constant" and we multiply with each item in
-    the iterable. This makes more sense.
+    Here the value we add is dependent on both the iterator variable and a
+    local variable. This is more realistic.
 
 ----
 
@@ -1255,17 +1192,19 @@ Outside vs Inside
 +------------+------+
 | Python 2.7 | 1.3x |
 +------------+------+
-| Python 3.3 | 1.3x |
+| Python 3.6 | 1.3x |
 +------------+------+
-| PyPy 5.5   | 1.0x |
+| PyPy2 5.4  | 1.0x |
++------------+------+
+| PyPy3 5.5  | 1.0x |
 +------------+------+
 
 .. note::
 
-    Now the optimization dissappeared. Calculating the constant outside
-    of the loop is now faster again.
+    Now the optimization dissappeared On CPython 3 as well. Calculating the
+    constant outside of the loop is now faster again.
 
-    Except on PyPy which still succeeds in optimizing this.
+    PyPy still succeeds in optimizing this.
 
 ----
 
@@ -1280,9 +1219,11 @@ Outside vs Inside
 +------------+------+
 | Python 2.7 | 2.0x |
 +------------+------+
-| Python 3.3 | 2.0x |
+| Python 3.6 | 2.0x |
 +------------+------+
-| PyPy 5.5   | ~30x |
+| PyPy2 5.4  | 29x  |
++------------+------+
+| PyPy3 5.5  | 2.2x |
 +------------+------+
 
 .. note::
@@ -1296,9 +1237,25 @@ Outside vs Inside
     So, you *should* calculate constants outside of the loop.
 
     And it's the same with calculating constants outside of the loop.
-    It feels like it should be faster, and it often is. Python is such
-    a fantastic language partly because what intuitively feels like the
-    right thing to do, tends to in fact be the right thing to do.
+    It feels like it should be faster, and it often is.
+
+----
+
+Conclusion
+==========
+
+Python is awesome
+
+.. note::
+
+    Except the conclusions that you should test your code, and not optmize
+    without benchmarks, my takeaway from writing this talk is that
+    Python is awesome.
+
+    Python is such a fantastic language partly because what intuitively feels
+    like the right thing to do, tends to in fact be the right thing to do.
+    The short, readable code most of the time tends to be the fastest code.
+    Not always, but mostly.
 
 ----
 
