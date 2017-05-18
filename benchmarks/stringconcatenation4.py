@@ -13,7 +13,7 @@ def add_two_f():
         b = strings[9] + strings[20]
 
 add_two_b = Benchmark(add_two_f, description = "Adding 2")
-     
+
 
 def join_two_f():
     l = []

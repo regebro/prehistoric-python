@@ -6,32 +6,39 @@ try:
 except NameError:
     xrange = range
 
-strings = [b'A' * x for x in xrange(1000)]
-s1 = 'X' * 1000
-s2 = 'Y' * 1000
+def setup_b():
+    return {'null': u''.encode('ascii'),
+            'char': u'A'.encode('ascii')}
 
-def simple_f():
-    for x in range(1000):
-        s = strings[x] + strings[x]
+def setup_u():
+    return {'null': u'',
+            'char': u'A',
+            }
 
-simple_b = Benchmark(simple_f, description = "Simple concatenation: s = s1 + s2")
 
-def join_f():
-    for x in range(1000):
-        s = b"".join((strings[x], strings[x]))
+def add_two_f(char, null):
+    result = null
+    for x in xrange(1000):
+        result = result + x * char
 
-join_b = Benchmark(join_f, description = "Joining two strings: s1 = ''.join((s1, s2))")
+add_two_b_b = Benchmark(add_two_f, setup=setup_b,
+                        description="Simple byte concatenation: s1 = s1 + s2")
 
-def oldformat_f():
-    for x in range(1000):
-        s = "%s%s" % (strings[x], strings[x])
-    
-oldformat_b = Benchmark(oldformat_f, description = "Old formatting: s1 = '%s%s' % (s1, s2)")
-     
-def newformat_f():
-    for x in range(1000):
-        s = "{0}{1}".format(strings[x], strings[x])
+add_two_u_b = Benchmark(add_two_f, setup=setup_u,
+                        description="Simple unicode concatenation: s1 = s1 + s2")
 
-newformat_b = Benchmark(newformat_f, description = "New formatting: s1 = '{0}{1}'.format(s1, s2)")
 
-suite = Suite([simple_b, join_b, oldformat_b, newformat_b])
+def join_two_f(char, null):
+    l = []
+    for x in xrange(1000):
+        l.append(x * char)
+
+    result = null.join(l)
+
+join_two_b_b = Benchmark(join_two_f, setup=setup_b,
+                         description="Joining a byte list: s1 = ''.join(l)")
+
+join_two_u_b = Benchmark(join_two_f, setup=setup_u,
+                         description="Joining a unicode list: s1 = ''.join(l)")
+
+suite = Suite([add_two_b_b, join_two_b_b, add_two_u_b, join_two_u_b])

@@ -11,14 +11,9 @@ except NameError:
 
 strings = ['A' * x for x in xrange(1000)]
 
-if sys.version_info > (3,):
-    def setup_u():
-        return {'instr1': string.ascii_lowercase,
-                'instr2': string.ascii_uppercase}
-else:
-    def setup_u():
-        return {'instr1': string.ascii_lowercase.decode(),
-                'instr2': string.ascii_uppercase.decode()}
+def setup_u():
+    return {'instr1': string.ascii_lowercase.decode(),
+            'instr2': string.ascii_uppercase.decode()}
 
 def simple_u_f(instr1, instr2):
     for x in xrange(10000):
@@ -48,7 +43,7 @@ def newformat_u_f(instr1, instr2):
 newformat_u_b = Benchmark(newformat_u_f, setup=setup_u,
                           description="New formatting: s1 = '{0}{1}'.format(s1, s2)")
 
-suite_u = Suite([oldformat_u_b, newformat_u_b, simple_u_b, join_u_b])
+suite_u = Suite([oldformat_u_b, simple_u_b, join_u_b])
 
 
 def setup_b():
@@ -64,7 +59,7 @@ simple_b_b = Benchmark(simple_b_f, setup=setup_b,
 
 def join_b_f(instr1, instr2):
     for x in xrange(10000):
-        leftover = b''.join((instr1, instr2))
+        leftover = ''.join((instr1, instr2))
 
 join_b_b = Benchmark(join_b_f, setup=setup_b,
                      description="Joining two strings: s1=''.join((s1, s2))")
@@ -76,12 +71,5 @@ def oldformat_b_f(instr1, instr2):
 oldformat_b_b = Benchmark(oldformat_b_f, setup=setup_b,
                           description="Old formatting: s1 = '%s%s' % (s1, s2)")
 
-def newformat_b_f(instr1, instr2):
-    for x in xrange(10000):
-        leftover = "{0}{1}".format(instr1, instr2)
+suite_b = Suite([oldformat_b_b, simple_b_b, join_b_b,])
 
-newformat_b_b = Benchmark(newformat_b_f, setup=setup_b,
-                          description="New formatting: s1 = '{0}{1}'.format(s1, s2)")
-
-
-suite_b = Suite([oldformat_b_b, newformat_b_b, simple_b_b, join_b_b])

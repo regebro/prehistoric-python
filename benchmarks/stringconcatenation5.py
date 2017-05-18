@@ -38,7 +38,7 @@ def join_b_f():
     s = bnull
     s = s.join(thelist)
 
-join_b_b = Benchmark(join_b_f, description = "Joining a byte list: s1 = ''.join(l)")
+join_b_b = Benchmark(join_b_f, description = "Joining a byte list: s1 = b''.join(l)")
 
 
 def join_u_f():
@@ -46,6 +46,6 @@ def join_u_f():
     s = unull
     s = s.join(thelist)
 
-join_u_b = Benchmark(join_u_f, description = "Joining a byte list: s1 = ''.join(l)")
+join_u_b = Benchmark(join_u_f, description = "Joining a unicode list: s1 = u''.join(l)")
 
 suite = Suite([simple_b_b, join_b_b, simple_u_b, join_u_b])

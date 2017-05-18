@@ -938,13 +938,15 @@ PEP 479
 ==============================
 
 +------------+-------+
-| Python 2.4 | 1.5x  |
+| Python 2.4 | 3.0x  |
 +------------+-------+
-| Python 2.7 | 1.4x  |
+| Python 2.7 | 2.7x  |
 +------------+-------+
-| Python 3.3 | 1.3x  |
+| Python 3.6 | 2.1x  |
 +------------+-------+
-| PyPy 5.5   | 1.07x |
+| PyPy2 5.4  | 1.5x  |
++------------+-------+
+| PyPy3 5.5  | 1.2x  |
 +------------+-------+
 
 .. note::
@@ -952,10 +954,6 @@ PEP 479
     These benchmarks have been a big problem. It's been very hard to get
     something sensible, simple, that measures actual concatention, and
     doesn't get completely optimized away by PyPy.
-
-    And this is the best I can do. It adds strings between 0 and 999
-    characters long. There is overhead in the tests, but I believe that it's
-    not enough to make a significant difference to the numbers.
 
     And you see that using addition to concatenate is faster.
     Even on Python 2.4! So using join() was never faster!
@@ -973,7 +971,7 @@ This is slow:
 .. code:: python
 
     result = ''
-    for text in make_a_lot_of_text():
+    for text in long_list_of_text():
         result = result + text
     return result
 
@@ -990,7 +988,7 @@ Much faster:
 
 .. code:: python
 
-    texts = make_a_lot_of_text()
+    texts = long_list_of_text()
     result = ''.join(texts)
     return result
 
@@ -1008,19 +1006,18 @@ Much faster:
 +------------+------+
 | Python 2.7 | 2x   |
 +------------+------+
-| Python 3.3 | 2x   |
+| Python 3.6 | 2.5x |
 +------------+------+
-| PyPy 5.5   | 500x |
+| PyPy2 5.4  | 700x |
++------------+------+
+| PyPy3 5.5  | 700x |
 +------------+------+
 
 .. note::
 
-    Twice as fast, in fact. And this is with native strings, so Unicode
-    on Python 3. On Python 2 the difference is much bigger with Unicode,
-    and weirdly, the difference is much bigger with bytes on Python 3.
-
-    PyPy doesn't care much if it's bytes or strings join is somewhere between
-    400 and 1500 times faster.
+    Join is WAY faster when joining an existing list of strings. This is
+    native strings. With Unicode the difference under Python 2 is around 200
+    times!
 
 ----
 
@@ -1030,7 +1027,7 @@ Many Copies
 .. code:: python
 
     result = ''
-    for text in make_a_lot_of_text():
+    for text in long_list_of_text():
         result = result + text
     return result
 
@@ -1043,12 +1040,12 @@ Many Copies
 
 ----
 
-ONE COPY!
-=========
+One Copy
+========
 
 .. code:: python
 
-    texts = make_a_lot_of_text()
+    texts = long_list_of_text()
     result = ''.join(texts)
     return result
 
@@ -1072,19 +1069,72 @@ The Misunderstanding
     But this also only copies each of the strings once. The optimization of
     using join isn't relevant here.
 
-    So if adding strings are fast when you are adding two strings, and
-    joining is fast if you have many strings, where is the breakpoint?
+----
 
-    Well, it depends. It depends on how long your strings are and how many
-    you have. With typical cases it seems join() is faster on CPython
-    at somewhere around 4-5 strings.
+.. code:: python
 
-    With PyPy up to ten strings are still as fast to use addition as to use
-    join, and I stopped testing there because it was getting silly.
+    for x in xrange(1000):
+        result = result + x * char
 
-    The conclusion is that you should do what feels natural. If the easiest
-    way to concatenate a bunch of strings is by using +, then do that. If the
-    strings you have are in a list or generated in a loop, then use join.
+vs.
+
+.. code:: python
+
+    l = []
+    for x in xrange(1000):
+        l.append(x * char)
+
+    result = ''.join(l)
+
+.. note::
+
+    But I discovered something interesting here. If you are actually generating
+    the strings in a loop, then it's faster to add in that loop than making a
+    list and then joining it!
+
+----
+
+``+`` is faster than ``.join`` again!
+=====================================
+
+With native strings
+
++------------+-------+
+| Python 2.4 | 2.2x  |
++------------+-------+
+| Python 2.7 | 2.1x  |
++------------+-------+
+| Python 3.6 | 1.9x  |
++------------+-------+
+| PyPy2 5.4  | 0.01x |
++------------+-------+
+| PyPy3 5.5  | 0.02x |
++------------+-------+
+
+
+.. note::
+
+    Except on PyPy!
+
+----
+
+But ``.join`` is still faster than ``+``!
+=========================================
+
+With non-native strings
+
++------------+-------+
+| Python 2.4 | 17x   |
++------------+-------+
+| Python 2.7 | 27x   |
++------------+-------+
+| Python 3.6 | 34x   |
++------------+-------+
+| PyPy2 5.4  | 67x   |
++------------+-------+
+| PyPy3 5.5  | 83x   |
++------------+-------+
+
 
 ----
 
