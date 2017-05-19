@@ -25,6 +25,15 @@ PyCon US 2017, Portland
 
 ----
 
+.. image:: images/cover.png
+
+.. note::
+
+    And I wrote the book on how to move from Python 2 to Python 3.
+    It's open source, on github.
+
+----
+
 .. image:: images/magda_elenor.jpg
     :class: left
     :width: 70%
