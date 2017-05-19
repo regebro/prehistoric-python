@@ -853,7 +853,7 @@ PEP 479
     def testgen(x):
         while x < 100:
             if x == 31:
-                return "x can't be 31!"
+                return "Not an error anymore!"
             x += 1+x
             yield x
 
@@ -862,16 +862,14 @@ PEP 479
     And in Python 3.3 you can even pass an argument into StopIteration by
     returning a value.
 
+    And this again has to do with coroutines, which are magic. So if you want to do coroutines, you need Python 3.
+
 ----
 
 Stuck on Python 2?
 ==================
 Sucks for you!
 ==============
-
-.. note::
-
-    And this again has to do with coroutines, which are magic.
 
 ----
 
@@ -1275,6 +1273,8 @@ Christophe Simonis
 
 Made with Hovercraft!
 ---------------------
+
+http://slides.colliberty.com/PyConUS-2017/
 
 ----
 
