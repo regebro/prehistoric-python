@@ -225,7 +225,7 @@ div.highlight.present {
     position: right;
 }
 
-.header img {
+.footer img {
     width: 16%;
     position: absolute;
     top: 0;
@@ -239,13 +239,13 @@ div.highlight.present {
     height: 3.1em;
 }
 
-.impress-on-step-1 .header img {
+.impress-on-step-1 .footer img {
     width: 16%;
     top: 48%;
     left: 42%;
 }
 
-.impress-on-step-3 .header img {
+.impress-on-step-3 .footer img {
     width: 100%;
     top: -100px;
     left: 0;

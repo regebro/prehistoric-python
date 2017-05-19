@@ -3,7 +3,7 @@
 :title: Prehistoric Patterns in Python
 :auto-console: false
 
-.. header::
+.. footer::
 
     .. image:: images/shoobx.png
 
